@@ -1,7 +1,7 @@
 # Личный проект «TaskForce»
 
 * Студент: [Алина Вертола](https://up.htmlacademy.ru/yii/1/user/109184).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Крутько](https://htmlacademy.ru/profile/id187875).
 
 ---
 
