@@ -1,82 +1,89 @@
 <?php
 
-class Task {
-	const STATUS_NEW = 'new'; // Новое
-	const STATUS_CANCELED = 'canceled'; // Отменено
-	const STATUS_INWORK = 'inwork'; // В работе
-	const STATUS_COMPLETE = 'complete'; // Выполнено
-	const STATUS_FAILED = 'failed'; // Провалено
+class Task
+{
+    const STATUS_NEW = 'new'; // Новое
+    const STATUS_CANCELED = 'canceled'; // Отменено
+    const STATUS_INWORK = 'inwork'; // В работе
+    const STATUS_COMPLETE = 'complete'; // Выполнено
+    const STATUS_FAILED = 'failed'; // Провалено
 
-	public $ExecutantID = 0;
-	public $ClientID = 0;
-	public $status = [];
-	protected $actions = [];
+    const ACTION_PUBLISH = 'publish';
+    const ACTION_CANCEL = 'cancel';
+    const ACTION_CHOOSE = 'choose';
+    const ACTION_MARK_DONE = 'mark_done';
+    const ACTION_REFUSE = 'failed';
+    const ACTION_RESPOND = 'respond';
 
-	protected $statuses = [
-		'new' => 'Задание опубликовано, исполнитель ещё не найден',
-		'canceled' => 'Заказчик отменил задание',
-		'inwork' => 'Заказчик выбрал исполнителя для задания',
-		'complete' => 'Заказчик отметил задание как выполненное',
-		'failed' => 'Исполнитель отказался от выполнения задания',
-	];
+    private $executantID = 0;
+    private $clientID = 0;
+    private $status = [];
+    private $actions = [];
 
-	function __construct ($ExecutantID, $ClientID, $status) {
-		$this->ExecutantID = $ExecutantID;
-		$this->ClientID = $ClientID;
+    public $actionsList = [
+        'publish' => 'Опубликовать задание',
+        'cancel' => 'Отменить задание',
+        'choose' => 'Выбрать исполнителя',
+        'mark_done' => 'Отметить задание как выполненное',
+        'refuse' => 'Отказаться от задания',
+        'respond' => 'Откликнуться на задание',
+    ];
 
-		$this->GetAvailableActions($status);
-	}
+    public $statusesList = [
+        'new' => 'Задание опубликовано, исполнитель ещё не найден',
+        'canceled' => 'Заказчик отменил задание',
+        'inwork' => 'Заказчик выбрал исполнителя для задания',
+        'complete' => 'Заказчик отметил задание как выполненное',
+        'failed' => 'Исполнитель отказался от выполнения задания',
+    ];
 
-	// Заказчик
-	public function AddTask () {
-		$this->GetStatus('action_add');
-		return $this->statuses[$this->status];
-	}
-	public function CancelTask () {
-		$this->GetStatus('action_cancel');
-		return $this->statuses[$this->status];
-	}
-	public function ChooseExecutant () {
-		$this->GetStatus('action_choose');
-		return $this->statuses[$this->status];
-	}
-	public function MarkAsDone () {
-		$this->GetStatus('action_mark_done');
-		return $this->statuses[$this->status];
-	}
+    function __construct($executantID, $clientID)
+    {
+        $this->executantID = $executantID;
+        $this->clientID = $clientID;
+    }
 
-	// Исполнитель
-	public function RefuseTask () {
-		$this->GetStatus('action_refuse');
-		return $this->statuses[$this->status];
-	}
+    public function getAvailableActionsByStatus($status, $role)
+    {
+        switch ($status) {
+            case 'new':
+                if ($role == 'client') {
+                    return $this->actions = [self::ACTION_CANCEL, self::ACTION_CHOOSE]; // не уверена, что так можно делать
+                } else if ('executant') {
+                    return $this->actions = [self::ACTION_RESPOND];
+                }
+                break;
+            case 'inwork':
+                if ($role == 'customer') {
+                    return $this->actions = [self::ACTION_MARK_DONE];
+                } else if ('executant') {
+                    return $this->actions = [self::ACTION_REFUSE];
+                }
+                break;
+            default:
+                $this->actions = [];
+                break;
+        }
+    }
 
-	private function GetAvailableActions ($s) {
-		switch ($s) {
-			case 'new': return
-				$this->actions = ['cancel', 'choose_executant'];
-				break;
-			case 'inwork': return
-				$this->actions = ['mark_as_done', 'refuse'];
-				break;
-			default:
-				$this->actions = "No actions available";
-				break;
-		}
-	}
-
-	public function GetStatus ($action) {
-		switch ($action) {
-			case 'action_add': return $this->status = self::STATUS_NEW;
-				break;
-			case 'action_cancel': return $this->status = self::STATUS_CANCELED;
-				break;
-			case 'action_choose': return $this->status = self::STATUS_INWORK;
-				break;
-			case 'action_mark_done': return $this->status = self::STATUS_COMPLETE;
-				break;
-			case 'action_refuse': return $this->status = self::STATUS_FAILED;
-				break;
-		}
-	}
+    public function getStatus($action)
+    {
+        switch ($action) {
+            case 'add':
+                return $this->status = self::STATUS_NEW;
+                break;
+            case 'cancel':
+                return $this->status = self::STATUS_CANCELED;
+                break;
+            case 'choose':
+                return $this->status = self::STATUS_INWORK;
+                break;
+            case 'mark_done':
+                return $this->status = self::STATUS_COMPLETE;
+                break;
+            case 'refuse':
+                return $this->status = self::STATUS_FAILED;
+                break;
+        }
+    }
 }
