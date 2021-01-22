@@ -18,7 +18,7 @@ function my_assert_handler($file, $line, $code)
 // Подключение callback-функции
 assert_options(ASSERT_CALLBACK, 'my_assert_handler');
 
-$strategy = new Task(1, 1, 'new');
-assert($strategy->GetStatus('action_cancel') == Task::STATUS_CANCELED, 'cancel action');
+$strategy = new Task(1, 1);
+assert($strategy->GetStatus('cancel') == Task::STATUS_CANCELED, 'cancel action');
 
-var_dump($strategy->AddTask());
+var_dump($strategy->getAvailableActionsByStatus('inwork', 'client') );
