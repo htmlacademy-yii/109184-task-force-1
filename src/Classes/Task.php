@@ -1,4 +1,5 @@
 <?php
+namespace TaskForce;
 
 class Task
 {
@@ -65,12 +66,28 @@ class Task
 
     public function getAvailableActionsByStatus($status, $role)
     {
-    	return $this->actionStatusListByRole[$role][$status];
+        try {
+            if (!isset($this->actionStatusListByRole[$role][$status])) {
+                throw new \Exception('Action not found');
+            }
+
+            return $this->actionStatusListByRole[$role][$status];
+        } catch (\Exception $ex) {
+            echo $ex->getMessage();
+        }
     }
 
     public function getStatus($action)
     {
-        return $this->actionStatusList[$action];
+        try {
+            if (!isset($this->actionStatusList[$action])) {
+                throw new \Exception('Status not found');
+            }
+
+            return $this->actionStatusList[$action];
+        } catch (\Exception $ex) {
+            echo $ex->getMessage();
+        }
     }
 
     public function getStatusList()
