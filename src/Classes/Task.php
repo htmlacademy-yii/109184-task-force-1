@@ -66,28 +66,12 @@ class Task
 
     public function getAvailableActionsByStatus($status, $role)
     {
-        try {
-            if (!isset($this->actionStatusListByRole[$role][$status])) {
-                throw new \Exception('Action not found');
-            }
-
-            return $this->actionStatusListByRole[$role][$status];
-        } catch (\Exception $ex) {
-            echo $ex->getMessage();
-        }
+        return $this->actionStatusListByRole[$role][$status];
     }
 
     public function getStatus($action)
     {
-        try {
-            if (!isset($this->actionStatusList[$action])) {
-                throw new \Exception('Status not found');
-            }
-
-            return $this->actionStatusList[$action];
-        } catch (\Exception $ex) {
-            echo $ex->getMessage();
-        }
+        return $this->actionStatusList[$action];
     }
 
     public function getStatusList()
