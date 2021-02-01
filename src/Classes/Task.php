@@ -1,4 +1,5 @@
 <?php
+namespace TaskForce;
 
 class Task
 {
@@ -65,7 +66,7 @@ class Task
 
     public function getAvailableActionsByStatus($status, $role)
     {
-    	return $this->actionStatusListByRole[$role][$status];
+        return $this->actionStatusListByRole[$role][$status];
     }
 
     public function getStatus($action)

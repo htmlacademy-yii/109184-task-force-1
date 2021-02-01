@@ -1,6 +1,6 @@
 <?php
 
-require_once("classes/Task/Task.php");
+require __DIR__ . '/vendor/autoload.php';
 
 assert_options(ASSERT_ACTIVE, 1);
 assert_options(ASSERT_WARNING, 0);
@@ -18,7 +18,8 @@ function my_assert_handler($file, $line, $code)
 // Подключение callback-функции
 assert_options(ASSERT_CALLBACK, 'my_assert_handler');
 
-$strategy = new Task(1, 1);
-assert($strategy->GetStatus('cancel') == Task::STATUS_CANCELED, 'cancel action');
+$strategy = new TaskForce\Task(1, 1);
+assert($strategy->GetStatus('cancel') == TaskForce\Task::STATUS_CANCELED, 'cancel action');
 
-var_dump($strategy->getAvailableActionsByStatus('inwork', 'client') );
+$strategy->getAvailableActionsByStatus('inwork', 'client1');
+$strategy->getStatus('publish1');
