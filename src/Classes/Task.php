@@ -77,6 +77,7 @@ class Task
             return $action->getName();
         }
     }
+    
     public function getStatusList()
     {
     	return $this->statusesList;

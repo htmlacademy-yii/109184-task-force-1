@@ -1,16 +1,16 @@
 <?php
 namespace TaskForce;
 
-class Cancel extends AbstractAction 
+class MarkDone extends AbstractAction 
 {
 	public function getName() 
 	{
-		return "Отменить задание";
+		return "Отметить задание как выполненное";
 	}
 
 	public function getSystemName() 
 	{
-		return "cancel";
+		return "mark_done";
 	}
 
 	public function checkRole($executantID, $clientID, $currentUserID) 

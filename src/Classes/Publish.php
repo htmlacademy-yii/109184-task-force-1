@@ -1,16 +1,16 @@
 <?php
 namespace TaskForce;
 
-class Cancel extends AbstractAction 
+class Publish extends AbstractAction 
 {
 	public function getName() 
 	{
-		return "Отменить задание";
+		return "Опубликовать задание";
 	}
 
 	public function getSystemName() 
 	{
-		return "cancel";
+		return "publish";
 	}
 
 	public function checkRole($executantID, $clientID, $currentUserID) 

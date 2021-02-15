@@ -1,21 +1,21 @@
 <?php
 namespace TaskForce;
 
-class Cancel extends AbstractAction 
+class Respond extends AbstractAction 
 {
 	public function getName() 
 	{
-		return "Отменить задание";
+		return "Откликнуться на задание";
 	}
 
 	public function getSystemName() 
 	{
-		return "cancel";
+		return "respond";
 	}
 
 	public function checkRole($executantID, $clientID, $currentUserID) 
 	{
-		if ($currentUserID == $clientID) {
+		if ($currentUserID == $executantID) {
 			return true;
 		}
 
