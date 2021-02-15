@@ -71,21 +71,12 @@ class Task
         return $this->actionStatusListByRole[$role][$status];
     }
 
-    public function getStatus($action)
+    public function getStatus(AbstractAction $action)
     {
-        switch ($action) {
-            case 'cancel':
-                if ((new Cancel())->checkRole($this->executantID, $this->clientID, $this->currentUserID)){
-                    return (new Cancel())->getName();
-                }
-                break;
-            
-            default:
-                # code...
-                break;
+        if ($action->checkRole($this->executantID, $this->clientID, $this->currentUserID)){
+            return $action->getName();
         }
     }
-
     public function getStatusList()
     {
     	return $this->statusesList;

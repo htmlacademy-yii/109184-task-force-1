@@ -3,7 +3,7 @@ namespace TaskForce;
 
 abstract class AbstractAction
 {
-	abstract protected function getName();
-	abstract protected function getSystemName();
-	abstract protected function checkRole($executantID, $clientID, $currentUserID);
+	abstract public function getName();
+	abstract public function getSystemName();
+	abstract public function checkRole($executantID, $clientID, $currentUserID);
 }
