@@ -74,10 +74,12 @@ class Task
     public function getStatus(AbstractAction $action)
     {
         if ($action->checkRole($this->executantID, $this->clientID, $this->currentUserID)){
-            return $action->getName();
+            return $action;
         }
+
+        return false;
     }
-    
+
     public function getStatusList()
     {
     	return $this->statusesList;

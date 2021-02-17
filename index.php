@@ -8,3 +8,4 @@ var_dump($strategy->getStatus(new TaskForce\Cancel()));
 var_dump($strategy->getStatus(new TaskForce\Respond()));
 var_dump($strategy->getStatus(new TaskForce\Publish()));
 var_dump($strategy->getStatus(new TaskForce\Refuse()));
+var_dump($strategy->getStatus(new TaskForce\MarkDone()));
