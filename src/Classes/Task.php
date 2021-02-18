@@ -19,6 +19,7 @@ class Task
 
     private $executantID = 0;
     private $clientID = 0;
+    private $currentUserID = 0;
     private $status = [];
     private $actions = [];
 
@@ -58,10 +59,11 @@ class Task
     	],
     ];
 
-    function __construct($executantID, $clientID)
+    function __construct($executantID, $clientID, $currentUserID)
     {
         $this->executantID = $executantID;
         $this->clientID = $clientID;
+        $this->currentUserID = $currentUserID;
     }
 
     public function getAvailableActionsByStatus($status, $role)
@@ -69,9 +71,13 @@ class Task
         return $this->actionStatusListByRole[$role][$status];
     }
 
-    public function getStatus($action)
+    public function getStatus(AbstractAction $action)
     {
-        return $this->actionStatusList[$action];
+        if ($action->checkRole($this->executantID, $this->clientID, $this->currentUserID)){
+            return $action;
+        }
+
+        return false;
     }
 
     public function getStatusList()
