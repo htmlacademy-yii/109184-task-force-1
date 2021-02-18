@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 namespace TaskForce;
-
+use \Exceptions\CustomException;
 class Task
 {
     const STATUS_NEW = 'new'; // Новое
@@ -61,31 +62,39 @@ class Task
 
     function __construct($executantID, $clientID, $currentUserID)
     {
+        if (!is_int($executantID) || !is_int($clientID) || !is_int($currentUserID)) {
+            throw new CustomException("ID must be numeric");
+        }
+
         $this->executantID = $executantID;
         $this->clientID = $clientID;
         $this->currentUserID = $currentUserID;
     }
 
-    public function getAvailableActionsByStatus($status, $role)
+    public function getAvailableActionsByStatus($status, $role) : array
     {
         return $this->actionStatusListByRole[$role][$status];
     }
 
-    public function getStatus(AbstractAction $action)
+    public function getStatus(AbstractAction $action) : object
     {
-        if ($action->checkRole($this->executantID, $this->clientID, $this->currentUserID)){
-            return $action;
+        if (is_subclass_of($action, 'AbstractAction')) {
+            throw new CustomException("Action must be instance of AbstractAction");
         }
 
-        return false;
+        if (!$action->checkRole($this->executantID, $this->clientID, $this->currentUserID)) {
+            throw new CustomException("403 Forbidden");
+        }
+
+        return $action;
     }
 
-    public function getStatusList()
+    public function getStatusList() : array
     {
     	return $this->statusesList;
     }
 
-    public function getActionsList()
+    public function getActionsList() : array
     {
     	return $this->actionsList;
     }

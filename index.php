@@ -1,11 +1,17 @@
 <?php
+declare(strict_types=1);
+
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
 
 require __DIR__ . '/vendor/autoload.php';
 
-$strategy = new TaskForce\Task(1, 2, 2);
+try {
+	$strategy = new TaskForce\Task(1, 1, 2);
+	$strategy->getStatus(new TaskForce\Refuse());
+	$strategy->getStatus(new TaskForce\MarkDone());
+}
+catch (Exceptions\CustomException $e) {
+	echo("Ошибка: " . $e->getMessage());
+}
 
-var_dump($strategy->getStatus(new TaskForce\Cancel()));
-var_dump($strategy->getStatus(new TaskForce\Respond()));
-var_dump($strategy->getStatus(new TaskForce\Publish()));
-var_dump($strategy->getStatus(new TaskForce\Refuse()));
-var_dump($strategy->getStatus(new TaskForce\MarkDone()));
