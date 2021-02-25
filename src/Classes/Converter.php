@@ -12,23 +12,21 @@ class Converter
     private $filename;
     private $fp;
     private $tableName;
+    private $files;
 
-    private $result = [];
-    private $error = null;
+    function __construct()
+    {}
 
-    function __construct(string $filename, string $tableName)
+    public function createSQLFile(string $file) : void
     {
-        $this->filename = $filename;
-        $this->tableName = $tableName;
-    }
+        $id = 1;
+        $queryBody = [];
 
-    public function import() : void
-    {
-        if (!file_exists($this->filename)) {
+        if (!file_exists("data/" . $file)) {
             throw new CustomException("Файл не существует");
         }
 
-        $this->fp = file_get_contents($this->filename);
+        $this->fp = file_get_contents("data/" . $file);
 
         if (!$this->fp) {
             throw new CustomException("Не удалось открыть файл на чтение");
@@ -37,41 +35,46 @@ class Converter
         $this->fp = explode(PHP_EOL, $this->fp);
 
         foreach ($this->fp as $key => $row) {
-            if ($key == 0) continue;
-            $this->result[] = $row;
-        }
-    }
+            $params = $this->getNextLine($row);
+            if ($key == 0 || $params[0] == "") continue;
 
-    public function getSQL() : void 
-    {
-        $query = "INSERT INTO `{$this->tableName}` VALUES ";
-        $queryBody = [];
-        $id = 1;
-
-        foreach ($this->result as $key => $value) {
-            $params = $this->getNextLine($value);
-            if ($params[0] == "") continue;
-
-            $queryBody[] = "($id, '{$params[0]}', {$params[1]}, {$params[2]})";
+            $queryBody[] = "($id, '".implode("','", $params)."')";
             $id++;
         }
 
-        if (file_put_contents($this->tableName . ".sql", $query . implode(self::DELIMITER, $queryBody)) === false) {
+        $this->tableName = $this->getTableName($file);
+
+        $query = "INSERT INTO `$this->tableName` VALUES ";
+
+        if (file_put_contents("dump/" . $this->tableName . ".sql", $query . implode(self::DELIMITER, $queryBody)) === false) {
             throw new CustomException("Не удалось записать файл");
         }
     }
 
-    private function getHeaderData() : ?array 
+    public function getFilesList() : ?array 
     {
-    	$this->fp->rewind();
+    	if ($handle = opendir('data')) {
+            while (false !== ($entry = readdir($handle))) {
+                if ($entry != "." && $entry != "..") {
+                    $this->files[] = $entry;
+                }
+            }
+            closedir($handle);
+        }
 
-        $data = $this->fp->current();
-
-        return $data;
+        return $this->files;
     }
 
     private function getNextLine(string $str) : array 
     {
         return explode(self::DELIMITER, $str);
+    }
+
+    private function getTableName(string $entry) : string 
+    {
+        $ext = pathinfo($entry, PATHINFO_EXTENSION);
+        $entry = basename($entry, ".$ext");
+
+        return $entry;
     }
 }

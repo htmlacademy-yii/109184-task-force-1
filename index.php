@@ -3,15 +3,21 @@ declare(strict_types=1);
 
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
-//dt_add,rate,description
+
 require __DIR__ . '/vendor/autoload.php';
 
-$loader = new TaskForce\Converter('data\cities.csv', 'cities');
+$loader = new TaskForce\Converter();
 
 try {
-	$loader->import();
-    $loader->getSQL();
+	$files = $loader->getFilesList();
+
+	foreach ($files as $file) {
+		$loader->createSQLFile($file);
+	}
 }
 catch (Exceptions\CustomException $e) {
 	echo("Ошибка: " . $e->getMessage());
 }
+// echo "<pre>";
+// var_dump($files);
+// echo "</pre>";
