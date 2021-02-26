@@ -8,15 +8,15 @@ require __DIR__ . '/vendor/autoload.php';
 
 $loader = new TaskForce\Converter();
 
-try {
-	$files = $loader->getFilesList();
+$files = $loader->getFilesList();
 
-	foreach ($files as $file) {
+foreach ($files as $file) {
+	try {
 		$loader->createSQLFile($file);
+	} 
+	catch (Exceptions\CustomException $e) {
+		echo("Ошибка: " . $e->getMessage());
 	}
-}
-catch (Exceptions\CustomException $e) {
-	echo("Ошибка: " . $e->getMessage());
 }
 // echo "<pre>";
 // var_dump($files);
