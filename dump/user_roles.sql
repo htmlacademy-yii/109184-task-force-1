@@ -1,0 +1,1 @@
+INSERT INTO `user_roles` VALUES (1, 'admin'),(2, 'customer'),(3, 'executant')
