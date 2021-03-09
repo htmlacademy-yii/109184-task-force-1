@@ -14,6 +14,7 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use frontend\models\City as City;
 
 /**
  * Site controller
@@ -74,6 +75,8 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $city = City::findOne(1);
+        // echo($city->name);
         return $this->render('index');
     }
 
