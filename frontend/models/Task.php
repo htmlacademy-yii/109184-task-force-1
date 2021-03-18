@@ -136,7 +136,7 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getCategory()
     {
-        return $this->hasOne(Categories::className(), ['id' => 'category_id']);
+        return $this->hasOne(Category::className(), ['id' => 'category_id']);
     }
 
     /**
@@ -156,7 +156,7 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getCity()
     {
-        return $this->hasOne(Cities::className(), ['id' => 'city_id']);
+        return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
 
     /**
