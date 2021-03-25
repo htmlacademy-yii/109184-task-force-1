@@ -206,4 +206,24 @@ class User extends \yii\db\ActiveRecord
     {
         return $this->hasOne(UserRoles::className(), ['id' => 'role_id']);
     }
+
+    /**
+     * Gets query for [[Role]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserStatus()
+    {
+        return $this->hasOne(getUserStatus::className(), ['id' => 'activity_status']);
+    }
+
+    /**
+     * Gets query for [[Role]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategory()
+    {
+        return $this->hasMany(Category::className(), ['id' => 'user_id'])->viaTable('category_users', ['category_id' => 'id']);;
+    }
 }
