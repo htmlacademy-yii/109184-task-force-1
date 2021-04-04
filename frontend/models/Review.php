@@ -63,9 +63,9 @@ class Review extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUserCreated()
+    public function getUser()
     {
-        return $this->hasOne(Users::className(), ['id' => 'user_created']);
+        return $this->hasOne(User::className(), ['id' => 'user_created']);
     }
 
     /**
@@ -75,6 +75,16 @@ class Review extends \yii\db\ActiveRecord
      */
     public function getUserReciever()
     {
-        return $this->hasOne(Users::className(), ['id' => 'user_reciever']);
+        return $this->hasOne(User::className(), ['id' => 'user_reciever']);
+    }
+
+    /**
+     * Gets query for [[Task]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTask()
+    {
+        return $this->hasOne(Task::className(), ['id' => 'task_id']);
     }
 }
