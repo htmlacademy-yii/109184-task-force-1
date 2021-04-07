@@ -61,4 +61,18 @@ class UsersController extends Controller
 
         return $this->render('users', ['users' => $users, 'model' => $taskForm, 'filter' => $filter]);
     }
+
+    public function actionView($id)
+    {
+        $user = User::find()->where(['users.id' => $id])
+        ->with('city')->one();
+
+        $reviews = Review::find()->with('task')->with('userReciever')->where(['user_reciever' => $id])->all();
+        
+        if (!$user) {
+            throw new NotFoundHttpException("Пользователь с ID $id не найден");
+        }
+
+        return $this->render('user', ['user' => $user, 'reviews' => $reviews]);
+    }
 }

@@ -124,7 +124,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUserCreated()
+    public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_created']);
     }
