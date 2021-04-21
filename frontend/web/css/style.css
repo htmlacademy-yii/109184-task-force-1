@@ -2619,3 +2619,7 @@ footer {
 .has-error span {
   color: #FF116E; }
 /*# sourceMappingURL=style.css.map */
+
+.width100 {
+  width: 100%;
+}

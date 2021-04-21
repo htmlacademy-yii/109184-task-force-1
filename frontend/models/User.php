@@ -38,8 +38,8 @@ use Yii;
  * @property Reviews[] $reviews
  * @property Reviews[] $reviews0
  * @property Tasks[] $tasks
- * @property Cities $city
- * @property UserRoles $role
+ * @property Citu $city
+ * @property UserRole $role
  */
 class User extends \yii\db\ActiveRecord
 {
@@ -58,12 +58,13 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             [['role_id', 'birthdate', 'city_id', 'show_profile', 'show_contacts', 'created_at', 'updated_at'], 'integer'],
-            [['about'], 'required'],
+            [['about'], 'default', 'value' => ''],
             [['about', 'specifications', 'portfolio'], 'string'],
             [['balance', 'rating'], 'number'],
             [['login', 'password', 'email', 'name', 'phone', 'skype', 'telegram', 'avatar'], 'string', 'max' => 255],
-            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cities::className(), 'targetAttribute' => ['city_id' => 'id']],
-            [['role_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserRoles::className(), 'targetAttribute' => ['role_id' => 'id']],
+            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
+            [['role_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserRole::className(), 'targetAttribute' => ['role_id' => 'id']],
+            [['last_online'], 'default', 'value' => 0],
         ];
     }
 

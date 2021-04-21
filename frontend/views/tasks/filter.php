@@ -4,7 +4,7 @@ use yii\widgets\ActiveForm;
 use yii\widgets\ActiveField; ?>
 
 <div class="search-task__wrapper">
-  <?php ActiveForm::begin(['id' => 'signup-form', 'options' => ['class' => 'search-task__form', 'name' => 'test']]); ?>
+  <?php ActiveForm::begin(['id' => 'filter-form', 'options' => ['class' => 'search-task__form', 'name' => 'test']]); ?>
     <fieldset class="search-task__categories">
         <legend>Категории</legend>
     	<?php foreach ($model['category'] as $attr => $label): ?>
