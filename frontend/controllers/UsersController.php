@@ -12,7 +12,7 @@ use frontend\models\Review as Review;
 /**
  * Users controller
  */
-class UsersController extends Controller
+class UsersController extends SecuredController
 {
     public function actionIndex()
     {

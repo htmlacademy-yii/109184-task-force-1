@@ -1714,7 +1714,7 @@ footer {
 
 .clipart-woman {
   position: absolute;
-  bottom: 156px;
+  bottom: 160px;
   left: 411px; }
 
 .clipart-message {
@@ -2127,7 +2127,7 @@ footer {
   min-height: 374px;
   padding-left: 360px;
   padding-top: 45px;
-  width: 650px;
+  width: 1010px;
   margin: 0 auto; }
   .landing-top h1 {
     font-weight: 600;
@@ -2250,12 +2250,13 @@ footer {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  justify-content: center;
   width: 940px;
   margin: 0 auto;
   padding-top: 70px;
   padding-bottom: 110px;
   padding-left: 170px;
-  padding-right: 170px; }
+  padding-right: 140px; }
 
 .landing-notice-card {
   width: 460px;
@@ -2622,4 +2623,12 @@ footer {
 
 .width100 {
   width: 100%;
+}
+
+.enter-form {
+  height: 350px;
+}
+
+.enter-form .input-middle {
+  margin: 0;
 }

@@ -12,7 +12,7 @@ use frontend\models\TaskFilterForm as TaskFilterForm;
 /**
  * Tasks controller
  */
-class TasksController extends Controller
+class TasksController extends SecuredController
 {
     public function actionIndex()
     {

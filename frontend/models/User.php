@@ -3,7 +3,7 @@
 namespace frontend\models;
 
 use Yii;
-
+use yii\web\IdentityInterface;
 /**
  * This is the model class for table "users".
  *
@@ -41,7 +41,7 @@ use Yii;
  * @property Citu $city
  * @property UserRole $role
  */
-class User extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -49,6 +49,38 @@ class User extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'users';
+    }
+
+    public $password_repeat;
+
+    public static function findIdentity($id)
+    {
+        return self::findOne($id);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        // TODO: Implement findIdentityByAccessToken() method.
+    }
+
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
+
+    public function getAuthKey()
+    {
+        // TODO: Implement getAuthKey() method.
+    }
+
+    public function validateAuthKey($authKey)
+    {
+        // TODO: Implement validateAuthKey() method.
+    }
+
+    public function validatePassword($password)
+    {
+        return \Yii::$app->security->validatePassword($password, $this->password);
     }
 
     /**
@@ -226,5 +258,10 @@ class User extends \yii\db\ActiveRecord
     public function getCategory()
     {
         return $this->hasMany(Category::className(), ['id' => 'user_id'])->viaTable('category_users', ['category_id' => 'id']);;
+    }
+
+    public function getLogin()
+    {
+        return $this->login;
     }
 }
