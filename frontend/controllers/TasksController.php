@@ -26,9 +26,9 @@ class TasksController extends SecuredController
 		$taskForm->getCategory();
 		$taskForm->getWorkType();
 		$taskForm->getPeriod();
-		
-    	if (Yii::$app->request->getIsPost()) {
-        	$filter = Yii::$app->request->post();
+
+        $filter = Yii::$app->request->post();
+    	if ($filter) {
 
         	if (isset($filter['category'])) {
 				$query->andWhere(['in', 'category_id', $filter['category']]);
@@ -58,7 +58,6 @@ class TasksController extends SecuredController
         }
 
         $tasks = $query->all();
-    	
         return $this->render('tasks', ['tasks' => $tasks, 'model' => $taskForm, 'filter' => $filter]);
     }
 

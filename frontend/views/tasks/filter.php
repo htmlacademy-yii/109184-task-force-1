@@ -18,17 +18,18 @@ use yii\widgets\ActiveField; ?>
         <legend>Дополнительно</legend>
       	<?php foreach ($model['worktype'] as $attr => $label): ?>
       		<div>
-	    		<label class="checkbox__legend">
-					<input class="visually-hidden checkbox__input" type="checkbox" name="work_type[]" value="<?= $label->id ?>" <?= (isset($filter['work_type']) && in_array($label->id, $filter['work_type'])) ? 'checked' : ''?>>
-					<span><?= $label->name ?></span>
-				</label>
-			</div>
+    	    	<label class="checkbox__legend">
+    					<input class="visually-hidden checkbox__input" type="checkbox" name="work_type[]" value="<?= $label->id ?>" <?= (isset($filter['work_type']) && in_array($label->id, $filter['work_type'])) ? 'checked' : ''?>>
+    					<span><?= $label->name ?></span>
+    				</label>
+    			</div>
 		<?php endforeach; ?>
     </fieldset>
     <div class="field-container">
       <label class="search-task__name" for="period">Период</label>
       <select class="multiple-select input" id="period" size="1" name="period">
       	<?php foreach ($model['period'] as $attr => $label): ?>
+          <option value="">Не выбрано</option>
         	<option <?= (isset($filter['period']) && $filter['period'] == $attr) ? 'selected' : '' ?> value="<?= $attr ?>"><?= $label ?></option>
         <?php endforeach; ?>
       </select>
