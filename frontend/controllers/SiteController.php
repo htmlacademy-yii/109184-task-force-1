@@ -9,12 +9,14 @@ use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use common\models\LoginForm;
+use frontend\models\LoginForm as LoginForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
 use frontend\models\City as City;
+use yii\db\Query;
+use yii\helpers\Url;
 
 /**
  * Site controller
@@ -75,9 +77,12 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $city = City::findOne(1);
-        // echo($city->name);
-        return $this->render('index');
+        if (Yii::$app->user->isGuest) {
+            $model = new LoginForm();
+            return $this->render('landing', compact('model'));
+        } else {
+            return Yii::$app->response->redirect(Url::to('/tasks'));
+        }
     }
 
     /**
@@ -93,10 +98,9 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return Yii::$app->response->redirect(Url::to('/tasks'));
         } else {
             $model->password = '';
-
             return $this->render('login', [
                 'model' => $model,
             ]);

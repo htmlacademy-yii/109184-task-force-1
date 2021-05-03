@@ -15,7 +15,7 @@ class SignupController extends Controller
     public function actionIndex()
     {
     	$model = new SignupForm();
-
+        
     	if ($model->load(\Yii::$app->request->post())) {
 	        if ($model->signup()) {
 	            return $this->goHome();
