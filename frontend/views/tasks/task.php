@@ -1,3 +1,6 @@
+<?php
+use yii\helpers\Url;
+?>
 <div class="main-container page-container">
   <section class="content-view">
     <div class="content-view__card">
@@ -20,8 +23,15 @@
         </div>
         <div class="content-view__attach">
           <h3 class="content-view__h3">Вложения</h3>
-          <a href="#">my_picture.jpeg</a>
-          <a href="#">agreement.docx</a>
+          <?php if (!empty($task->gallery)) {
+            foreach ($task->gallery as $key => $file) { ?>
+              <img width="62" height="62" src="<?= $file->link ?>">
+          <?php  } 
+          } else {
+            echo "<p>Еще никто не оставил отклик. Будьте первым!</p>";
+          }?>
+       <!--    <a href="#">my_picture.jpeg</a>
+          <a href="#">agreement.docx</a> -->
         </div>
         <div class="content-view__location">
           <h3 class="content-view__h3">Расположение</h3>
@@ -68,13 +78,13 @@
       <div class="profile-mini__wrapper">
         <h3>Заказчик</h3>
         <div class="profile-mini__top">
-          <img src="/img/man-brune.jpg" width="62" height="62" alt="Аватар заказчика">
+          <img src="<?= $task->user->avatar ?>" width="62" height="62" alt="Аватар заказчика">
           <div class="profile-mini__name five-stars__rate">
-            <p><?= $task->user->name ?></p>
+            <p><?= $task->user->login ?></p>
           </div>
         </div>
         <p class="info-customer"><span>12 заданий</span><span class="last-">2 года на сайте</span></p>
-        <a href="#" class="link-regular">Смотреть профиль</a>
+        <a href="<?= Url::to(['users/view', 'id' => $task->user_created]);?>" class="link-regular">Смотреть профиль</a>
       </div>
     </div>
     <div id="chat-container">

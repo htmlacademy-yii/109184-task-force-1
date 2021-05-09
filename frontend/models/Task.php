@@ -3,6 +3,7 @@
 namespace frontend\models;
 
 use Yii;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "tasks".
@@ -31,6 +32,8 @@ use Yii;
  */
 class Task extends \yii\db\ActiveRecord
 {
+    public $filesUpload;
+
     /**
      * {@inheritdoc}
      */
@@ -45,17 +48,23 @@ class Task extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id'], 'required'],
-            [['id', 'category_id', 'work_type_id', 'city_id', 'expire_date', 'user_created', 'status', 'created_at'], 'integer'],
+            [['id', 'work_type_id', 'city_id', 'user_created', 'status', 'created_at'], 'integer'],
             [['description'], 'string'],
             [['price'], 'number'],
             [['title'], 'string', 'max' => 255],
+            ['title', 'required', 'message' => 'Поле "Мне нужно" должно быть заполнено'],
+            ['description', 'required', 'message' => 'Поле "Подробности задания" должно быть заполнено'],
+            ['price', 'required', 'message' => 'Поле "Бюджет" должно быть заполнено'],
+            ['price', 'compare', 'compareValue' => 0, 'operator' => '>=', 'type' => 'number', 'message' => 'Поле "Бюджет" должно быть положительным числом'],
+            ['expire_date', 'required', 'message' => 'Поле "Сроки исполнения" должно быть заполнено'],
             [['id'], 'unique'],
             [['user_created'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_created' => 'id']],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
+            ['category_id', 'required', 'message' => 'Поле "Категория" должно быть заполнено'],
+            [['category_id'], 'exist', 'skipOnError' => false, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['work_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => WorkType::className(), 'targetAttribute' => ['work_type_id' => 'id']],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
             [['status'], 'exist', 'skipOnError' => true, 'targetClass' => TaskStatus::className(), 'targetAttribute' => ['status' => 'id']],
+            [['filesUpload'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 10, 'extensions' => 'png, jpg, jpeg'],
         ];
     }
 
@@ -66,13 +75,13 @@ class Task extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'description' => 'Description',
-            'category_id' => 'Category ID',
+            'title' => 'Краткое название',
+            'description' => 'Подробности задания',
+            'category_id' => 'Категория',
             'work_type_id' => 'Work Type ID',
-            'city_id' => 'City ID',
-            'price' => 'Price',
-            'expire_date' => 'Expire Date',
+            'city_id' => 'Локация',
+            'price' => 'Бюджет',
+            'expire_date' => 'Сроки исполнения',
             'user_created' => 'User Created',
             'status' => 'Status',
             'created_at' => 'Created At',
@@ -84,7 +93,7 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getGalleries()
+    public function getGallery()
     {
         return $this->hasMany(Gallery::className(), ['post_id' => 'id']);
     }
@@ -157,7 +166,7 @@ class Task extends \yii\db\ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
-    }
+    }  
 
     /**
      * Gets query for [[Status0]].

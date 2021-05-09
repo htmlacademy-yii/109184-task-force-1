@@ -8,6 +8,8 @@ use yii\web\NotFoundHttpException;
 use frontend\models\Task as Task;
 use frontend\models\Respond as Respond;
 use frontend\models\TaskFilterForm as TaskFilterForm;
+use frontend\models\Gallery as Gallery;
+use yii\web\UploadedFile;
 
 /**
  * Tasks controller
@@ -63,9 +65,8 @@ class TasksController extends SecuredController
 
     public function actionView($id)
     {
-    	$task = Task::find()->where(['tasks.id' => $id])->with('category')
-    	->with('city')->with('user')->one();
-
+    	$task = Task::findOne($id);
+        // var_dump($task);
     	$responds = Respond::find()->with('user')->where(['task_id' => $id])->all();
     	
         if (!$task) {
@@ -73,5 +74,51 @@ class TasksController extends SecuredController
         }
 
         return $this->render('task', ['task' => $task, 'responds' => $responds]);
+    }
+
+    public function actionCreate()
+    {
+        if (\Yii::$app->user->identity->role_id != 4) {
+            throw new NotFoundHttpException("Вы не можете создавать задания");
+        }
+
+        $model = new Task();
+        
+        $model->load(\Yii::$app->request->post());
+        $fields = \Yii::$app->request->post();
+        
+        if ($model->validate()) {
+            $model->title = $fields['Task']['title'];
+            $model->description = $fields['Task']['description'];
+            $model->category_id = $fields['Task']['category_id'];
+            $model->price = $fields['Task']['price'];
+            $model->expire_date = strtotime($fields['Task']['expire_date']);
+            $model->status = 1;
+            $model->user_created = \Yii::$app->user->identity->id;
+            $model->created_at = strtotime('now');
+
+            $model->filesUpload = UploadedFile::getInstances($model, 'filesUpload');
+
+            if ($model->save()) {
+                if ($model->filesUpload) {
+                    foreach ($model->filesUpload as $file) {
+                        $galleryFile = new Gallery();
+                        $galleryFile->post_id = $model->id;
+                        $galleryFile->post_type = 'task';
+                        $galleryFile->link = '/uploads/' . $file->baseName . '.' . $file->extension;
+                        $galleryFile->user_id = \Yii::$app->user->identity->id;
+                        $galleryFile->created_at = strtotime('now');
+                        $galleryFile->save();
+                        $file->saveAs('uploads/' . $file->baseName . '.' . $file->extension);
+                    }
+                }
+
+                return $this->goHome();
+            }
+        } 
+    
+        $errors = $model->getErrors();
+        
+        return $this->render('create', compact('model', 'errors'));
     }
 }
