@@ -21,9 +21,9 @@ AppAsset::register($this);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
+    <?php $this->head() ?>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
-    <?php $this->head() ?>
 </head>
 <body>
 <?php $this->beginBody() ?>
@@ -67,7 +67,7 @@ AppAsset::register($this);
                         <a href="#">Исполнители</a>
                     </li>
                     <li class="site-list__item">
-                        <a href="#">Создать задание</a>
+                        <a href="/tasks/create">Создать задание</a>
                     </li>
                     <li class="site-list__item site-list__item--active">
                         <a>Мой профиль</a>
