@@ -8,6 +8,9 @@ use yii\web\NotFoundHttpException;
 use frontend\models\Task as Task;
 use frontend\models\Respond as Respond;
 use frontend\models\TaskFilterForm as TaskFilterForm;
+use frontend\models\ResponseForm as ResponseForm;
+use frontend\models\RequestForm as RequestForm;
+use frontend\models\RefuseForm as RefuseForm;
 use frontend\models\Gallery as Gallery;
 use yii\web\UploadedFile;
 
@@ -66,14 +69,18 @@ class TasksController extends SecuredController
     public function actionView($id)
     {
     	$task = Task::findOne($id);
-        // var_dump($task);
+
     	$responds = Respond::find()->with('user')->where(['task_id' => $id])->all();
+
+        $responseForm = new ResponseForm();
+        $requestForm = new RequestForm();
+        $refuseForm = new RefuseForm();
     	
         if (!$task) {
             throw new NotFoundHttpException("Задание с ID $id не найден");
         }
 
-        return $this->render('task', ['task' => $task, 'responds' => $responds]);
+        return $this->render('task', ['task' => $task, 'responds' => $responds, 'responseForm' => $responseForm, 'requestForm' => $requestForm, 'refuseForm' => $refuseForm]);
     }
 
     public function actionCreate()
@@ -120,5 +127,87 @@ class TasksController extends SecuredController
         $errors = $model->getErrors();
         
         return $this->render('create', compact('model', 'errors'));
+    }
+
+    public function actionRefuse($id = false) {
+        $taskID = '';
+
+        if (\Yii::$app->user->identity->role_id == 4) {
+            if ($id) {
+                $respond = Respond::findOne($id);
+
+                $respond->is_accepted = 0;
+                $respond->save();
+
+                $task = Task::findOne($respond->task_id);
+            }
+        } else if (\Yii::$app->user->identity->role_id == 3) {
+            if (\Yii::$app->request->post()) {
+                $fields = \Yii::$app->request->post();
+                $taskID = $fields['task_id'];
+
+                $task = Task::findOne($taskID);
+                $task->status = 6; // Провалено
+                $task->save();
+            }
+        }
+
+        return $this->redirect(['task/view/' . $task->id]);
+    }
+
+    public function actionAccept($id) {
+        $respond = Respond::findOne($id);
+
+        $respond->is_accepted = 1;
+        $respond->save();
+
+        $task = Task::findOne($respond->task_id);
+        $task->status = 2; // В работе
+        $task->save();
+
+        return $this->redirect(['task/view/' . $task->id]);
+    }
+
+    public function actionRespond() {
+        $respond = new Respond();
+
+        if (\Yii::$app->request->post()) {
+            $fields = \Yii::$app->request->post();
+            if ($respond->validate()) {
+                $respond->task_id = $fields['ResponseForm']['task_id'];
+                $respond->user_id = \Yii::$app->user->identity->id;
+                $respond->price = $fields['ResponseForm']['price'];
+                $respond->comment = $fields['ResponseForm']['comment'];
+                $respond->created_at = strtotime('now');
+                $respond->is_accepted = null;
+                $respond->save();
+            }
+        }
+        
+        return $this->redirect(['task/view/' . $respond->id]);
+    }
+
+    public function actionRequest() {
+        if (\Yii::$app->request->post()) {
+            $fields = \Yii::$app->request->post();
+            $task_id = $fields['task_id'];
+
+            $task = Task::findOne($task_id);
+            $task->status = 5; // Завершено
+            $task->save();
+
+            $review = new Review();
+            $review->task_id = $task->id;
+            $review->user_created = \Yii::$app->user->identity->id;
+            $review->text = $fields['RequestForm']['task_id'];
+
+            $userExecutant = Respond::find()->where(['task_id' => $task->id])->where(['status' => 1])->one();
+            $review->user_reciever = $userExecutant->user_id;
+            $review->rate = $fields['rating'];
+            $review->created_at = strtotime('now');
+            $review->save();
+        }
+
+        return $this->redirect(['task/view/' . $task->id]);
     }
 }

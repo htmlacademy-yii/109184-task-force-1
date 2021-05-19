@@ -18,10 +18,21 @@ use yii\helpers\Url;
     </p>
     <span><?=$respond->price?> ₽</span>
   </div>
-  <div class="feedback-card__actions">
-    <a class="button__small-color response-button button"
-       type="button">Подтвердить</a>
-    <a class="button__small-color refusal-button button"
-       type="button">Отказать</a>
-  </div>
+  <?php if (\Yii::$app->user->identity->role_id == 4) { ?>
+    <div class="feedback-card__actions">
+      <?php if ($respond->is_accepted !== null || $task->status == 2) { ?>
+        <?php if ($respond->is_accepted == 0) { ?>
+          <span>Отказано</span>
+        <?php } else if ($respond->is_accepted == 1) { ?>
+          <span>Выбран</span>
+        <?php } ?>
+      <?php } else { ?>
+        <a class="button__small-color response-button button" href="<?= Url::to(['tasks/accept', 'id' => $respond->id]);?>"
+           type="button">Подтвердить</a>
+        
+        <a class="button__small-color refusal-button button" href="<?= Url::to(['tasks/refuse', 'id' => $respond->id]);?>"
+           type="button">Отказать</a>
+      <?php } ?>
+    </div>
+  <?php } ?>
 </div>

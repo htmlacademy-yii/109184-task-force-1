@@ -177,4 +177,87 @@ class Task extends \yii\db\ActiveRecord
     {
         return $this->hasOne(TaskStatuses::className(), ['id' => 'status']);
     }
+
+    const STATUS_NEW = 'new'; // Новое
+    const STATUS_CANCELED = 'canceled'; // Отменено
+    const STATUS_INWORK = 'inwork'; // В работе
+    const STATUS_COMPLETE = 'complete'; // Выполнено
+    const STATUS_FAILED = 'failed'; // Провалено
+
+    const ACTION_PUBLISH = 'publish';
+    const ACTION_CANCEL = 'cancel';
+    const ACTION_CHOOSE = 'choose';
+    const ACTION_MARK_DONE = 'request';
+    const ACTION_REFUSE = 'refusal';
+    const ACTION_RESPOND = 'respond';
+    const ACTION_WRITE_MESSAGE = 'write_message';
+
+    private $status = [];
+    private $actions = [];
+
+    private $actionsList = [
+        'publish' => 'Опубликовать задание',
+        'cancel' => 'Отменить задание',
+        'choose' => 'Выбрать исполнителя',
+        'request' => 'Завершить',
+        'refusal' => 'Отказаться',
+        'respond' => 'Откликнуться',
+    ];
+
+    public $statusesList = [
+        'new' => 'Задание опубликовано, исполнитель ещё не найден',
+        'canceled' => 'Заказчик отменил задание',
+        'inwork' => 'Заказчик выбрал исполнителя для задания',
+        'complete' => 'Заказчик отметил задание как выполненное',
+        'failed' => 'Исполнитель отказался от выполнения задания',
+    ];
+
+    private $actionStatusList = [
+        self::ACTION_PUBLISH => self::STATUS_NEW,
+        self::ACTION_CANCEL => self::STATUS_CANCELED,
+        self::ACTION_CHOOSE => self::STATUS_INWORK,
+        self::ACTION_MARK_DONE => self::STATUS_COMPLETE,
+        self::ACTION_REFUSE => self::STATUS_FAILED,
+    ];
+
+    private $actionStatusListByRole = [
+        'executant' => [
+            self::STATUS_NEW => [self::ACTION_RESPOND],
+            self::STATUS_INWORK => [self::ACTION_REFUSE],
+        ],
+        'customer' => [
+            self::STATUS_INWORK => [self::ACTION_MARK_DONE],
+        ],
+    ];
+
+    public function getAvailableActionsByStatus($status, $role)
+    {
+        $UserRole = UserRole::findOne($role);
+        $taskStatus = TaskStatus::findOne($status);
+        // var_dump($UserRole->role, $taskStatus->description);
+        // var_dump($this->actionStatusListByRole[$UserRole->role][$taskStatus->description]);
+        return $this->actionStatusListByRole[$UserRole->role][$taskStatus->description] ?? [];
+    }
+
+    public function getActionName($action) {
+        return $this->actionsList[$action];
+    }
+
+    public function checkRespond() {
+        if (Respond::find()->with('user')->where(['task_id' => $this->id])->where(['user_id' => \Yii::$app->user->identity->id])->one()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // public function getStatus(AbstractAction $action)
+    // {
+    //     if ($action->checkRole($this->executantID, $this->clientID, $this->currentUserID)){
+    //         return $action;
+    //     }
+
+    //     return false;
+    // }
+
 }
