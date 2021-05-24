@@ -174,7 +174,7 @@ class TasksController extends SecuredController
         if (\Yii::$app->request->post()) {
             $fields = \Yii::$app->request->post();
             if ($respond->validate()) {
-                $respond->task_id = $fields['ResponseForm']['task_id'];
+                $respond->task_id = $fields['task_id'];
                 $respond->user_id = \Yii::$app->user->identity->id;
                 $respond->price = $fields['ResponseForm']['price'];
                 $respond->comment = $fields['ResponseForm']['comment'];
@@ -184,7 +184,7 @@ class TasksController extends SecuredController
             }
         }
         
-        return $this->redirect(['task/view/' . $respond->id]);
+        return $this->redirect(['task/view/' . $respond->task_id]);
     }
 
     public function actionRequest() {

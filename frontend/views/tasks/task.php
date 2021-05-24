@@ -48,7 +48,7 @@ use yii\helpers\Url;
         <?php $actions = $task->getAvailableActionsByStatus($task->status, \Yii::$app->user->identity->role_id);?>
         <?php if (!empty($actions)) { ?>
           <?php foreach ($actions as $action) { ?>
-            <?php if ($action != 'respond' && !$task->checkRespond()) { ?>
+            <?php if (!$task->checkRespond()) { ?>
               <button class=" button button__big-color <?= $action ?>-button open-modal"
                       type="button" data-for="<?= $action ?>-form"><?= $task->getActionName($action)?>
               </button>
