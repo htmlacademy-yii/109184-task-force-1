@@ -62,10 +62,10 @@ AppAsset::register($this);
                 <div class="header__nav">
                     <ul class="header-nav__list site-list">
                         <li class="site-list__item">
-                            <a href="#">Задания</a>
+                            <a href="/tasks">Задания</a>
                         </li>
                         <li class="site-list__item">
-                            <a href="#">Исполнители</a>
+                            <a href="/users">Исполнители</a>
                         </li>
                         <li class="site-list__item">
                             <a href="/tasks/create">Создать задание</a>
@@ -191,19 +191,19 @@ AppAsset::register($this);
             <div class="page-footer__links">
                 <ul class="links__list">
                     <li class="links__item">
-                        <a href="">Задания</a>
+                        <a href="/tasks">Задания</a>
                     </li>
                     <li class="links__item">
                         <a href="">Мой профиль</a>
                     </li>
                     <li class="links__item">
-                        <a href="">Исполнители</a>
+                        <a href="/users">Исполнители</a>
                     </li>
                     <li class="links__item">
-                        <a href="">Регистрация</a>
+                        <a href="/signup">Регистрация</a>
                     </li>
                     <li class="links__item">
-                        <a href="">Создать задание</a>
+                        <a href="/tasks/create">Создать задание</a>
                     </li>
                     <li class="links__item">
                         <a href="">Справка</a>
@@ -213,7 +213,7 @@ AppAsset::register($this);
             <div class="page-footer__copyright">
                 <a>
                     <img class="copyright-logo"
-                         src="./img/academy-logo.png"
+                         src="/img/academy-logo.png"
                          width="185" height="63"
                          alt="Логотип HTML Academy">
                 </a>
@@ -235,7 +235,6 @@ AppAsset::register($this);
         </div>
     </footer>
 </div>
-
 <?php $this->endBody() ?>
 </body>
 </html>

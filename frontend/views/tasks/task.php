@@ -27,11 +27,7 @@ use yii\helpers\Url;
             foreach ($task->gallery as $key => $file) { ?>
               <img width="62" height="62" src="<?= $file->link ?>">
           <?php  } 
-          } else {
-            echo "<p>Еще никто не оставил отклик. Будьте первым!</p>";
-          }?>
-       <!--    <a href="#">my_picture.jpeg</a>
-          <a href="#">agreement.docx</a> -->
+          } ?>
         </div>
         <div class="content-view__location">
           <h3 class="content-view__h3">Расположение</h3>
@@ -49,15 +45,16 @@ use yii\helpers\Url;
         </div>
       </div>
       <div class="content-view__action-buttons">
-        <button class=" button button__big-color response-button open-modal"
-                type="button" data-for="response-form">Откликнуться
-        </button>
-        <button class="button button__big-color refusal-button open-modal"
-                type="button" data-for="refuse-form">Отказаться
-        </button>
-        <button class="button button__big-color request-button open-modal"
-                type="button" data-for="complete-form">Завершить
-        </button>
+        <?php $actions = $task->getAvailableActionsByStatus($task->status, \Yii::$app->user->identity->role_id);?>
+        <?php if (!empty($actions)) { ?>
+          <?php foreach ($actions as $action) { ?>
+            <?php if (!$task->checkRespond()) { ?>
+              <button class=" button button__big-color <?= $action ?>-button open-modal"
+                      type="button" data-for="<?= $action ?>-form"><?= $task->getActionName($action)?>
+              </button>
+            <?php } ?>
+          <?php } ?>
+        <?php } ?>
       </div>
     </div>
     <div class="content-view__feedback">
@@ -65,7 +62,9 @@ use yii\helpers\Url;
       <div class="content-view__feedback-wrapper">
 		<?php if (!empty($responds)) {
 			foreach ($responds as $key => $respond) { 
-				echo $this->render('respond', ['respond' => $respond]);
+        if ($respond['user_id'] == \Yii::$app->user->identity->id || \Yii::$app->user->identity->role_id == 4) {
+				  echo $this->render('respond', ['respond' => $respond, 'task' => $task]);
+        }
 			} 
 		} else {
 			echo "<p>Еще никто не оставил отклик. Будьте первым!</p>";
@@ -93,3 +92,15 @@ use yii\helpers\Url;
     </div>
   </section>
 </div>
+<section class="modal response-form form-modal" id="respond-form">
+  <?= $this->render('modals/respond_modal', ['responseForm' => $responseForm, 'task_id' => $task->id]); ?>
+</section>
+<section class="modal completion-form form-modal" id="request-form">
+  <?= $this->render('modals/request_modal', ['requestForm' => $requestForm, 'task_id' => $task->id]); ?>
+</section>
+<section class="modal form-modal refusal-form" id="refusal-form">
+  <?= $this->render('modals/refuse_modal', ['task_id' => $task->id]); ?>
+</section>
+<div class="overlay"></div>
+<script src="/js/main.js"></script>
+<script src="/js/messenger.js"></script>

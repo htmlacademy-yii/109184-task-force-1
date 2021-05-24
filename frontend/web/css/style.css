@@ -2487,17 +2487,20 @@ footer {
 .response-form {
   display: none;
   width: 480px;
-  margin-left: -260px; }
+  margin-left: -260px;
+  height: 420px; }
   .response-form p {
     margin-bottom: 10px; }
 
 .completion-form {
   width: 460px;
+  height: 450px;
   margin-left: -260px;
   display: none; }
 
 .refusal-form {
   width: 460px;
+  height: 250px;
   margin-left: -260px;
   display: none; }
   .refusal-form p {
@@ -2510,7 +2513,7 @@ footer {
 
 .response-form-payment {
   width: 166px;
-  background-position: 170px 12px; }
+  background-position: 140px 12px; }
 
 .form-modal-close {
   position: absolute;
@@ -2564,6 +2567,7 @@ footer {
   background-color: #f8a400; }
 
 .completion-label--yes {
+  float: left;
   width: 108px;
   background-color: #00e096;
   border-top-left-radius: 4px;

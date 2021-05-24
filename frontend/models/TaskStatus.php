@@ -28,7 +28,6 @@ class TaskStatus extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id'], 'required'],
             [['id'], 'integer'],
             [['description'], 'string', 'max' => 255],
             [['id'], 'unique'],
@@ -51,8 +50,8 @@ class TaskStatus extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTasks()
+    public function getTask()
     {
-        return $this->hasMany(Tasks::className(), ['status' => 'id']);
+        return $this->hasMany(Task::className(), ['status' => 'id']);
     }
 }
