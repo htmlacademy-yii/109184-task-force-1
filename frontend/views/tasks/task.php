@@ -1,5 +1,7 @@
 <?php
 use yii\helpers\Url;
+use yii\web\JsExpression;
+use yii\web\View;
 ?>
 <div class="main-container page-container">
   <section class="content-view">
@@ -33,13 +35,13 @@ use yii\helpers\Url;
           <h3 class="content-view__h3">Расположение</h3>
           <div class="content-view__location-wrapper">
             <div class="content-view__map">
-              <a href="#"><img src="/img/map.jpg" width="361" height="292"
-                               alt="Москва, Новый арбат, 23 к. 1"></a>
+              <div id="map" style="width: 361px; height: 292px"></div>
+              <!-- <a href="#"><img src="/img/map.jpg" width="361" height="292"
+                               alt="Москва, Новый арбат, 23 к. 1"></a> -->
             </div>
             <div class="content-view__address">
               <span class="address__town"><?=$task->city->name?></span><br>
-              <span>Новый арбат, 23 к. 1</span>
-              <p>Вход под арку, код домофона 1122</p>
+              <span><?=$task->address->name?></span>
             </div>
           </div>
         </div>
@@ -104,3 +106,26 @@ use yii\helpers\Url;
 <div class="overlay"></div>
 <script src="/js/main.js"></script>
 <script src="/js/messenger.js"></script>
+
+<?php
+$this->registerJs(
+    "ymaps.ready(init);
+      function init(){
+          // Создание карты.
+          var myMap = new ymaps.Map('map', {
+              center: [".$task->address->lat.", ".$task->address->long."],
+              zoom: 17
+          });
+          var myPlacemark = new ymaps.GeoObject({
+              geometry: {
+                  type: \"Point\",
+                  coordinates: [".$task->address->lat.", ".$task->address->long."]
+              }
+          });
+      }
+  ",
+    View::POS_READY,
+    'my-button-handler'
+);
+?>
+

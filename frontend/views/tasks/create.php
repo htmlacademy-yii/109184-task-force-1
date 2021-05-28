@@ -2,6 +2,10 @@
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use frontend\models\Category;
+use yii\web\View;
+use yii\web\JsExpression;
+use yii\jui\AutoComplete;
+use yii\helpers\Url;
 ?>
 
 <div class="main-container page-container">
@@ -22,16 +26,58 @@ use frontend\models\Category;
           )->hint('Выберите категорию')->label('Категория');?>
         </div>
         <div class="field-container">
-          <?= $form->field($model, 'filesUpload[]')->fileInput(['multiple' => 'multiple', 'class' => ''])->label('Файлы'); ?>
+          <?= $form->field($model, 'filesUpload[]')->fileInput(['multiple' => 'multiple', 'class' => ''])->label('Файлы')->hint('Загрузите файлы, которые помогут исполнителю лучше выполнить или оценить работу'); ?>
           <!-- <div class="create__file">
           </div> -->
-          <span>Загрузите файлы, которые помогут исполнителю лучше выполнить или оценить работу</span>
         </div>
         <div class="field-container">
-          <label for="13">Локация</label>
-          <input class="input-navigation input-middle input" id="13" type="search" name="q"
-                 placeholder="Санкт-Петербург, Калининский район">
-          <span>Укажите адрес исполнения, если задание требует присутствия</span>
+          <?= $form->field($model, 'addressText')->widget(\yii\jui\AutoComplete::classname(), [
+              'clientOptions' => [
+                  // 'source' => Url::to(['/geo']),
+                  'source' => new JsExpression("function(request, response) {
+                        $.getJSON('".Url::to(['/geo'])."', {
+                            term: request.term
+                        }, function(data) {
+                              var suggestions = [];
+                              if (typeof data.response !== 'undefined') {
+                                  jQuery.each(data.response.GeoObjectCollection.featureMember, function(index, ele) {
+                                      suggestions.push({
+                                          label: ele.GeoObject.metaDataProperty.GeocoderMetaData.text,
+                                          value: ele.GeoObject.metaDataProperty.GeocoderMetaData.text,
+                                          pos: ele.GeoObject.Point.pos,
+                                          city: ele.GeoObject.metaDataProperty.GeocoderMetaData.AddressDetails.Country.AdministrativeArea.AdministrativeAreaName
+                                      });
+                                  });
+                                } else {
+                                  jQuery.each(data, function(index, ele) {
+                                      suggestions.push({
+                                          label: ele.name,
+                                          value: ele.name,
+                                          pos: ele.long + ' ' + ele.lat, 
+                                          city: ele.city.name
+                                      });
+                                  });
+                                }
+                            response(suggestions)
+                          });
+                          
+                      }"),
+                  'minLength'=>'2',
+                  'select' => new JsExpression("
+                    function(event, ui) {
+                      jQuery('#position').val(ui.item.pos)
+                      jQuery('#city').val(ui.item.city)
+                      console.log(ui)
+                    }")
+              ],
+              'options'=>[
+                  'class' => 'input-navigation input-middle input width100',
+                  'autocomplete' => "off",
+                  'placeholder' => 'Санкт-Петербург, Калининский район'
+              ]
+          ])->label('Локация')->hint('Укажите адрес исполнения, если задание требует присутствия') ?>
+          <?= Html::hiddenInput('position', '', ['id' => 'position']);?>
+          <?= Html::hiddenInput('city', '', ['id' => 'city']);?>
         </div>
         <div class="create__price-time">
           <div class="field-container create__price-time--wrapper">

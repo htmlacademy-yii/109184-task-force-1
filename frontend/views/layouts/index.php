@@ -24,6 +24,7 @@ AppAsset::register($this);
     <?php $this->head() ?>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/9.1.1/css/autoComplete.min.css">
 </head>
 <body>
 <?php $this->beginBody() ?>
@@ -171,6 +172,7 @@ AppAsset::register($this);
         </div>
     </footer>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/9.1.1/js/autoComplete.min.js"></script>
 
 <?php $this->endBody() ?>
 </body>

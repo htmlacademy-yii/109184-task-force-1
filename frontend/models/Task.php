@@ -33,6 +33,8 @@ use yii\web\UploadedFile;
 class Task extends \yii\db\ActiveRecord
 {
     public $filesUpload;
+    public $addressText;
+    public $position;
 
     /**
      * {@inheritdoc}
@@ -63,8 +65,13 @@ class Task extends \yii\db\ActiveRecord
             [['category_id'], 'exist', 'skipOnError' => false, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['work_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => WorkType::className(), 'targetAttribute' => ['work_type_id' => 'id']],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
+            [['address_id'], 'exist', 'skipOnError' => true, 'targetClass' => Address::className(), 'targetAttribute' => ['address_id' => 'id']],
             [['status'], 'exist', 'skipOnError' => true, 'targetClass' => TaskStatus::className(), 'targetAttribute' => ['status' => 'id']],
             [['filesUpload'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 10, 'extensions' => 'png, jpg, jpeg'],
+            [['addressText'], 'required'],
+            [['addressText'], 'string', 'max' => 255],
+            [['position'], 'string', 'max' => 255]
+
         ];
     }
 
@@ -80,6 +87,7 @@ class Task extends \yii\db\ActiveRecord
             'category_id' => 'Категория',
             'work_type_id' => 'Work Type ID',
             'city_id' => 'Локация',
+            'address_id' => 'Адрес',
             'price' => 'Бюджет',
             'expire_date' => 'Сроки исполнения',
             'user_created' => 'User Created',
@@ -167,6 +175,15 @@ class Task extends \yii\db\ActiveRecord
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
     }  
+    /**
+     * Gets query for [[Address]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAddress()
+    {
+        return $this->hasOne(Address::className(), ['id' => 'address_id']);
+    } 
 
     /**
      * Gets query for [[Status0]].
