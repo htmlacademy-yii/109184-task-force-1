@@ -5,24 +5,23 @@ namespace frontend\models;
 use Yii;
 
 /**
- * This is the model class for table "cities".
+ * This is the model class for table "addresses".
  *
  * @property int $id
- * @property string|null $name
+ * @property string $name
  * @property float $lat
  * @property float $long
  *
  * @property Tasks[] $tasks
- * @property Users[] $users
  */
-class City extends \yii\db\ActiveRecord
+class Address extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'cities';
+        return 'addresses';
     }
 
     /**
@@ -31,10 +30,9 @@ class City extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id'], 'integer'],
+            [['name', 'lat', 'long'], 'required'],
+            [['name'], 'string'],
             [['lat', 'long'], 'number'],
-            [['name'], 'string', 'max' => 255],
-            [['id'], 'unique'],
         ];
     }
 
@@ -58,16 +56,16 @@ class City extends \yii\db\ActiveRecord
      */
     public function getTasks()
     {
-        return $this->hasMany(Task::className(), ['city_id' => 'id']);
+        return $this->hasMany(Tasks::className(), ['address_id' => 'id']);
     }
 
-    /**
-     * Gets query for [[Users]].
+     /**
+     * Gets query for [[City]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
+    public function getCity()
     {
-        return $this->hasMany(User::className(), ['city_id' => 'id']);
-    }
+        return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }  
 }

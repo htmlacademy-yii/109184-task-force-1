@@ -12,6 +12,8 @@ use frontend\models\ResponseForm as ResponseForm;
 use frontend\models\RequestForm as RequestForm;
 use frontend\models\RefuseForm as RefuseForm;
 use frontend\models\Gallery as Gallery;
+use frontend\models\Address as Address;
+use frontend\models\City as City;
 use yii\web\UploadedFile;
 
 /**
@@ -105,6 +107,30 @@ class TasksController extends SecuredController
             $model->created_at = strtotime('now');
 
             $model->filesUpload = UploadedFile::getInstances($model, 'filesUpload');
+
+            $city = City::find()->where(['name' => $fields['city']])->one();
+
+            if(!$city) {
+              $city = new City();
+              $city->name = $fields['city'];
+              $city->lat = 0;
+              $city->long = 0;
+              $city->save();
+            }
+            
+            $address = Address::find()->where(['name' => $fields['Task']['addressText']])->one();
+            if(!$address) {
+                $address = new Address();
+                $address->name = $fields['Task']['addressText'];
+                $position = explode(" ", $fields['position']);
+                $address->city_id = $city->id;
+                $address->lat = $position[1];
+                $address->long = $position[0];
+                $address->save();
+            }
+
+            $model->city_id = $city->id;
+            $model->address_id = $address->id;
 
             if ($model->save()) {
                 if ($model->filesUpload) {
