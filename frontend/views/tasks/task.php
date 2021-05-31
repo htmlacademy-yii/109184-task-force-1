@@ -90,7 +90,7 @@ use yii\web\View;
     </div>
     <div id="chat-container">
       <!--                    добавьте сюда атрибут task с указанием в нем id текущего задания-->
-      <chat class="connect-desk__chat"></chat>
+      <chat class="connect-desk__chat" task="<?= $task->id?>" ufrom="<?= \Yii::$app->user->identity->id?>" uto="<?= $task->user_created?>"></chat>
     </div>
   </section>
 </div>
@@ -105,6 +105,7 @@ use yii\web\View;
 </section>
 <div class="overlay"></div>
 <script src="/js/main.js"></script>
+<script src="/js/moment.js"></script>
 <script src="/js/messenger.js"></script>
 
 <?php
