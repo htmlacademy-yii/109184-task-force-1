@@ -35,13 +35,15 @@ class Message extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id'], 'required'],
             [['id', 'task_id', 'user_from', 'user_to', 'status', 'created_at'], 'integer'],
             [['text'], 'string'],
             [['id'], 'unique'],
-            [['user_from'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['user_from' => 'id']],
-            [['user_to'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['user_to' => 'id']],
-            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tasks::className(), 'targetAttribute' => ['task_id' => 'id']],
+            [['user_from'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_from' => 'id']],
+            [['user_to'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_to' => 'id']],
+            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::className(), 'targetAttribute' => ['task_id' => 'id']],
+            [['created_at'], 'default', 'value' => function ($model, $attribute) {
+                return strtotime('now');
+            }]
         ];
     }
 
@@ -68,7 +70,7 @@ class Message extends \yii\db\ActiveRecord
      */
     public function getUserFrom()
     {
-        return $this->hasOne(Users::className(), ['id' => 'user_from']);
+        return $this->hasOne(User::className(), ['id' => 'user_from']);
     }
 
     /**
@@ -78,7 +80,7 @@ class Message extends \yii\db\ActiveRecord
      */
     public function getUserTo()
     {
-        return $this->hasOne(Users::className(), ['id' => 'user_to']);
+        return $this->hasOne(User::className(), ['id' => 'user_to']);
     }
 
     /**
@@ -88,6 +90,6 @@ class Message extends \yii\db\ActiveRecord
      */
     public function getTask()
     {
-        return $this->hasOne(Tasks::className(), ['id' => 'task_id']);
+        return $this->hasOne(Task::className(), ['id' => 'task_id']);
     }
 }
