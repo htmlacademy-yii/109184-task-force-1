@@ -23,7 +23,7 @@ use yii\widgets\ActiveField; ?>
     					<span><?= $label->name ?></span>
     				</label>
     			</div>
-		<?php endforeach; ?>
+		    <?php endforeach; ?>
     </fieldset>
     <div class="field-container">
       <label class="search-task__name" for="period">Период</label>

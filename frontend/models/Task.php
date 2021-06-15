@@ -113,7 +113,7 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getMessages()
     {
-        return $this->hasMany(Messages::className(), ['task_id' => 'id']);
+        return $this->hasMany(Message::className(), ['task_id' => 'id']);
     }
 
     /**
@@ -121,9 +121,9 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getResponds()
+    public function getRespond()
     {
-        return $this->hasMany(Responds::className(), ['task_id' => 'id']);
+        return $this->hasMany(Respond::className(), ['task_id' => 'id']);
     }
 
     /**
@@ -190,9 +190,13 @@ class Task extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getStatus0()
+    public function getStatusName()
     {
-        return $this->hasOne(TaskStatuses::className(), ['id' => 'status']);
+        return $this->hasOne(TaskStatus::className(), ['id' => 'status']);
+    }
+
+    public function getExecutant() {
+        return Respond::find()->andWhere(['is_accepted' => '1'])->one();
     }
 
     const STATUS_NEW = 'new'; // Новое
@@ -222,11 +226,11 @@ class Task extends \yii\db\ActiveRecord
     ];
 
     public $statusesList = [
-        'new' => 'Задание опубликовано, исполнитель ещё не найден',
-        'canceled' => 'Заказчик отменил задание',
-        'inwork' => 'Заказчик выбрал исполнителя для задания',
-        'complete' => 'Заказчик отметил задание как выполненное',
-        'failed' => 'Исполнитель отказался от выполнения задания',
+        'new' => 'Новое',
+        'canceled' => 'Отменено',
+        'inwork' => 'На исполнении',
+        'complete' => 'Завершено',
+        'failed' => 'Провалено',
     ];
 
     private $actionStatusList = [
@@ -251,8 +255,7 @@ class Task extends \yii\db\ActiveRecord
     {
         $UserRole = UserRole::findOne($role);
         $taskStatus = TaskStatus::findOne($status);
-        // var_dump($UserRole->role, $taskStatus->description);
-        // var_dump($this->actionStatusListByRole[$UserRole->role][$taskStatus->description]);
+
         return $this->actionStatusListByRole[$UserRole->role][$taskStatus->description] ?? [];
     }
 
