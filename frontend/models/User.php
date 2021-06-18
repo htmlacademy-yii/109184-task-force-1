@@ -43,6 +43,8 @@ use yii\web\IdentityInterface;
  */
 class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
+    public $avatarUpload, $portfolioUpload;
+
     /**
      * {@inheritdoc}
      */
@@ -89,14 +91,16 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['role_id', 'birthdate', 'city_id', 'show_profile', 'show_contacts', 'created_at', 'updated_at'], 'integer'],
-            [['about'], 'default', 'value' => ''],
+            [['city_id', 'show_profile', 'show_contacts', 'created_at', 'updated_at'], 'integer'],
+            // [['about'], 'default', 'value' => ''],
             [['about', 'specifications', 'portfolio'], 'string'],
             [['balance', 'rating'], 'number'],
             [['login', 'password', 'email', 'name', 'phone', 'skype', 'telegram', 'avatar'], 'string', 'max' => 255],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
             [['role_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserRole::className(), 'targetAttribute' => ['role_id' => 'id']],
             [['last_online'], 'default', 'value' => 0],
+            [['avatarUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg'],
+            [['portfolioUpload'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 10, 'extensions' => 'png, jpg, jpeg'],
         ];
     }
 
@@ -155,9 +159,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getGalleries()
+    public function getGallery()
     {
-        return $this->hasMany(Gallery::className(), ['user_id' => 'id']);
+        return $this->hasMany(Gallery::className(), ['user_id' => 'id'])->where(['post_type' => 'portfolio']);
     }
 
     /**

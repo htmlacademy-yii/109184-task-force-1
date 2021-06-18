@@ -646,8 +646,8 @@ footer {
       color: #D4D9E2; }
 
 .input-middle {
-  padding-top: 14px;
-  padding-bottom: 14px;
+  padding-top: 12px;
+  padding-bottom: 12px;
   padding-right: 16px;
   padding-left: 16px;
   margin-bottom: 35px; }
@@ -1742,7 +1742,7 @@ footer {
     margin-top: 0; }
 
 .my-list__wrapper {
-  width: 690px;
+  width: 760px;
   padding-left: 30px;
   padding-right: 30px;
   padding-bottom: 30px;
@@ -1792,13 +1792,13 @@ footer {
 .my-list__bottom-chat--new::before {
   position: absolute;
   content: "";
-  width: 14px;
+  width: 18px;
   height: 18px;
   border-radius: 12px;
   background-color: #ff6b81;
   color: #ffffff;
   padding-left: 5px;
-  top: -9px;
+  top: -11px;
   right: -9px; }
 
 .my-list__bottom span::before {
@@ -2035,7 +2035,7 @@ footer {
   margin-right: 20px; }
 
 .account__input--name {
-  width: 445px; }
+  width: 345px; }
 
 .account__input--email {
   width: 382px;
@@ -2045,7 +2045,7 @@ footer {
   width: 605px; }
 
 .account__input--date {
-  width: 222px;
+  width: 380px;
   margin-right: 0; }
   .account__input--date .input-date {
     background-position: 180px 12px; }
@@ -2053,7 +2053,7 @@ footer {
 .account__input--info {
   width: 100%;
   margin-right: 0;
-  margin-top: 30px; }
+  margin-top: -30px; }
 
 .account_checkbox {
   width: 219px; }
@@ -2635,4 +2635,13 @@ footer {
 
 .enter-form .input-middle {
   margin: 0;
+}
+
+.portfolio-list {
+  width: 100%;
+}
+
+.portfolio-list img {
+  float: left;
+  margin-left: 10px;
 }

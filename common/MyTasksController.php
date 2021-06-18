@@ -1,0 +1,65 @@
+<?php
+namespace frontend\controllers;
+
+use yii\web\Controller;
+use Yii;
+use yii\db\Query;
+use yii\web\NotFoundHttpException;
+use frontend\models\Task as Task;
+use frontend\models\Respond as Respond;
+use frontend\models\TaskFilterForm as TaskFilterForm;
+use frontend\models\ResponseForm as ResponseForm;
+use frontend\models\RequestForm as RequestForm;
+use frontend\models\RefuseForm as RefuseForm;
+use frontend\models\Gallery as Gallery;
+use frontend\models\Address as Address;
+use frontend\models\City as City;
+use yii\web\UploadedFile;
+
+/**
+ * My Tasks controller
+ */
+class MyasksController extends SecuredController
+{
+    public function actionIndex()
+    {
+        var_dump(213);
+        $query = Task::find()->join('LEFT JOIN', 'responds', 'tasks.id = responds.task_id');
+
+        $filter = Yii::$app->request->get();
+        if ($filter) {
+            switch($filter['status']) {
+                case 'finished':
+                   $query->andWhere(['tasks.status' => '5']);
+                   $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                   $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                   $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'new':   
+                    $query->andWhere(['tasks.status' => '1']);
+                    $query->andWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                break;
+                case 'current': 
+                    $query->andWhere(['tasks.status' => '2']);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'canceled':
+                    $query->andWhere(['tasks.status' => '3'])->orWhere(['tasks.status' => '6']);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'expired':
+                    $query->andWhere(['<', 'tasks.expire_date', strtotime('now')]);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+            }
+        }
+        // echo $query->createCommand()->sql;
+        $tasks = $query->all(); 
+        return $this->render('index', ['tasks' => $tasks, 'filter' => $filter]);
+    }
+}
