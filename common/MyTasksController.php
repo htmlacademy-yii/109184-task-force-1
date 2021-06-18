@@ -19,10 +19,11 @@ use yii\web\UploadedFile;
 /**
  * My Tasks controller
  */
-class MytasksController extends SecuredController
+class MyasksController extends SecuredController
 {
     public function actionIndex()
     {
+        var_dump(213);
         $query = Task::find()->join('LEFT JOIN', 'responds', 'tasks.id = responds.task_id');
 
         $filter = Yii::$app->request->get();
@@ -56,11 +57,8 @@ class MytasksController extends SecuredController
                     $query->andWhere(['responds.is_accepted' => 1]);
                 break;
             }
-        } else {
-            $query->andWhere(['tasks.status' => '1']);
-            $query->andWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
         }
-        
+        // echo $query->createCommand()->sql;
         $tasks = $query->all(); 
         return $this->render('index', ['tasks' => $tasks, 'filter' => $filter]);
     }

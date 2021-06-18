@@ -95,6 +95,8 @@ class TasksController extends SecuredController
         
         $model->load(\Yii::$app->request->post());
         $fields = \Yii::$app->request->post();
+
+        var_dump($fields);
         
         if ($model->validate()) {
             $model->title = $fields['Task']['title'];
