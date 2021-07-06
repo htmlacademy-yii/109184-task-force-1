@@ -2645,3 +2645,11 @@ footer {
   float: left;
   margin-left: 10px;
 }
+
+.auth-clients {
+  margin-left: -40px;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}

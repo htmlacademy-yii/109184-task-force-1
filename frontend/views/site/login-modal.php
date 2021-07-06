@@ -14,7 +14,10 @@ use yii\bootstrap\ActiveForm;
             <?php $form = ActiveForm::begin(['id' => 'login-form', 'action' => ['login'], 'options' => ['name' => 'login']]); ?>
             <?= $form->field($model, 'email')->textInput(['class' => 'enter-form-email input input-middle width100'])->label('E-mail', ["class" => "form-modal-description"]) ?>
             <?= $form->field($model, 'password')->passwordInput(['class' => 'enter-form-email input input-middle width100'])->label('Пароль', ["class" => "form-modal-description"]) ?>
-               
+            <?= yii\authclient\widgets\AuthChoice::widget([
+                         'baseAuthUrl' => ['site/auth'],
+                         'popupMode' => false,
+                    ]) ?>   
                 <?//= $form->field($model, 'rememberMe')->checkbox() ?>
 
                 <!-- <div style="color:#999;margin:1em 0">

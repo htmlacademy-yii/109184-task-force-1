@@ -72,7 +72,7 @@ AppAsset::register($this);
                             <a href="/tasks/create">Создать задание</a>
                         </li>
                         <li class="site-list__item">
-                            <a>Мой профиль</a>
+                            <a href="/account">Мой профиль</a>
                         </li>
                     </ul>
                 </div>
@@ -103,12 +103,12 @@ AppAsset::register($this);
                 </div>
                 <div class="header__account">
                     <a class="header__account-photo">
-                        <img src="/img/user-photo.png"
+                        <img src="<?= Yii::$app->user->identity->avatar; ?>"
                              width="43" height="44"
                              alt="Аватар пользователя">
                     </a>
                     <span class="header__account-name">
-                    <?= Yii::$app->user->identity->login; ?>
+                    <?= Yii::$app->user->identity->name; ?>
                  </span>
                 </div>
                 <div class="account__pop-up">
@@ -195,7 +195,7 @@ AppAsset::register($this);
                         <a href="/tasks">Задания</a>
                     </li>
                     <li class="links__item">
-                        <a href="">Мой профиль</a>
+                        <a href="/account">Мой профиль</a>
                     </li>
                     <li class="links__item">
                         <a href="/users">Исполнители</a>
