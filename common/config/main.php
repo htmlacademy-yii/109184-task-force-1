@@ -25,5 +25,16 @@ return [
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'api/messages']
             ],
         ],
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'vkontakte' => [
+                    'class' => 'yii\authclient\clients\VKontakte',
+                    'clientId' => '7896681',
+                    'clientSecret' => 'w4H7malWwPbUbzJqoLjG',
+                ],
+                // и т.д.
+            ],
+        ]
     ],
 ];
