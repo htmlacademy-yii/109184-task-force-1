@@ -45,7 +45,7 @@ use yii\helpers\Url;
                                           label: ele.GeoObject.metaDataProperty.GeocoderMetaData.text,
                                           value: ele.GeoObject.metaDataProperty.GeocoderMetaData.text,
                                           pos: ele.GeoObject.Point.pos,
-                                          city: ele.GeoObject.metaDataProperty.GeocoderMetaData.AddressDetails.Country.AdministrativeArea.AdministrativeAreaName
+                                          city: ele.GeoObject.metaDataProperty.GeocoderMetaData.AddressDetails.text
                                       });
                                   });
                                 } else {
