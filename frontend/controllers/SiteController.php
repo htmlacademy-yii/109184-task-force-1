@@ -18,6 +18,7 @@ use frontend\models\ContactForm;
 use frontend\models\City as City;
 use frontend\models\Auth as Auth;
 use frontend\models\User as User;
+use frontend\models\Task as Task;
 use yii\db\Query;
 use yii\helpers\Url;
 use yii\authclient\AuthAction;
@@ -27,6 +28,7 @@ use yii\authclient\AuthAction;
  */
 class SiteController extends Controller
 {
+    public $cities;
     /**
      * {@inheritdoc}
      */
@@ -106,7 +108,8 @@ class SiteController extends Controller
                         'email' => $attributes['email'],
                         'password' => $password,
                         'birthdate' => strtotime($attributes['bdate']),
-                        'avatar' => $attributes['photo']
+                        'avatar' => $attributes['photo'],
+                        'created_at' => time()
                     ]);
                     $user->generateAuthKey();
                     $user->generatePasswordResetToken();
@@ -149,7 +152,13 @@ class SiteController extends Controller
     {
         if (Yii::$app->user->isGuest) {
             $model = new LoginForm();
-            return $this->render('landing', compact('model'));
+            $tasks = Task::find()
+            ->where(['tasks.status' => '1'])
+            ->with('category')
+            ->orderBy('created_at DESC')
+            ->limit(4)
+            ->all();
+            return $this->render('landing', compact('model', 'tasks'));
         } else {
             return Yii::$app->response->redirect(Url::to('/tasks'));
         }

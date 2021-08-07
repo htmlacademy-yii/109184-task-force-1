@@ -11,4 +11,17 @@ use yii\web\Controller;
 class MessagesController extends ActiveController
 {
     public $modelClass = Message::class;
+    
+    public function actionNew()
+    {
+      $requestParams = \Yii::$app->getRequest()->getBodyParams();
+      
+      if (empty($requestParams)) {
+          $requestParams = \Yii::$app->getRequest()->getQueryParams();
+      }
+
+      $result = $this->modelClass::find()->where(['task_id' => $requestParams['task_id']])->all();
+            
+      return $result;
+    } 
 }

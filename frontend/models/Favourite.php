@@ -31,11 +31,10 @@ class Favourite extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id'], 'required'],
             [['id', 'user_added', 'user_favourite', 'created_at'], 'integer'],
             [['id'], 'unique'],
-            [['user_added'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['user_added' => 'id']],
-            [['user_favourite'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['user_favourite' => 'id']],
+            [['user_added'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_added' => 'id']],
+            [['user_favourite'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_favourite' => 'id']],
         ];
     }
 
@@ -59,7 +58,7 @@ class Favourite extends \yii\db\ActiveRecord
      */
     public function getUserAdded()
     {
-        return $this->hasOne(Users::className(), ['id' => 'user_added']);
+        return $this->hasOne(User::className(), ['id' => 'user_added']);
     }
 
     /**
@@ -69,6 +68,6 @@ class Favourite extends \yii\db\ActiveRecord
      */
     public function getUserFavourite()
     {
-        return $this->hasOne(Users::className(), ['id' => 'user_favourite']);
+        return $this->hasOne(User::className(), ['id' => 'user_favourite']);
     }
 }

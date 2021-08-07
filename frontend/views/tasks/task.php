@@ -11,11 +11,11 @@ use yii\web\View;
           <div class="content-view__headline">
             <h1><?=$task->title?></h1>
             <span>Размещено в категории
-                                <a href="browse.html" class="link-regular"><?=$task->category->name?></a>
-                                25 минут назад</span>
+              <a href="<?= Url::to(['/tasks', 'category' => $task->category->id]);?>" class="link-regular"><?=$task->category->name?></a>
+              <?= ($task->created_at < 60*60*24*365) ? Yii::$app->formatter->asRelativeTime($task->created_at) : Yii::$app->formatter->asDate($task->created_at);?></span>
           </div>
-          <b class="new-task__price new-task__price--clean content-view-price"><?=$task->price?><b> ₽</b></b>
-          <div class="new-task__icon new-task__icon--clean content-view-icon"></div>
+          <b class="new-task__price new-task__price--<?=$task->category->icon?> content-view-price"><?=$task->price?><b> ₽</b></b>
+          <div class="new-task__icon new-task__icon--<?=$task->category->icon?> content-view-icon"></div>
         </div>
         <div class="content-view__description">
           <h3 class="content-view__h3">Общее описание</h3>
@@ -23,21 +23,19 @@ use yii\web\View;
             <?=$task->description?>
           </p>
         </div>
+        <?php if (!empty($task->gallery)) { ?>
         <div class="content-view__attach">
-          <h3 class="content-view__h3">Вложения</h3>
-          <?php if (!empty($task->gallery)) {
-            foreach ($task->gallery as $key => $file) { ?>
-              <img width="62" height="62" src="<?= $file->link ?>">
-          <?php  } 
-          } ?>
+          <h3 class="content-view__h3">Вложения</h3>          
+          <?php  foreach ($task->gallery as $key => $image) { ?>
+            <img data-fancybox width="62" height="62" src="<?= $image->link; ?>">
+          <?php }  ?>
         </div>
+        <?php } ?>
         <div class="content-view__location">
           <h3 class="content-view__h3">Расположение</h3>
           <div class="content-view__location-wrapper">
             <div class="content-view__map">
               <div id="map" style="width: 361px; height: 292px"></div>
-              <!-- <a href="#"><img src="/img/map.jpg" width="361" height="292"
-                               alt="Москва, Новый арбат, 23 к. 1"></a> -->
             </div>
             <div class="content-view__address">
               <span class="address__town"><?=$task->city->name?></span><br>
@@ -79,12 +77,12 @@ use yii\web\View;
       <div class="profile-mini__wrapper">
         <h3>Заказчик</h3>
         <div class="profile-mini__top">
-          <img src="<?= $task->user->avatar ?>" width="62" height="62" alt="Аватар заказчика">
+          <img src="<?= ($task->user->avatar || $task->user->avatar != "") ? $task->user->avatar : '/img/no-photo.png'?>" width="62" height="62" alt="Аватар заказчика">
           <div class="profile-mini__name five-stars__rate">
             <p><?= $task->user->login ?></p>
           </div>
         </div>
-        <p class="info-customer"><span>12 заданий</span><span class="last-">2 года на сайте</span></p>
+        <p class="info-customer"><span><?= count($task->user->task)?> заданий</span><span class="last-"><?= $task->duration ?> на сайте</span></p>
         <a href="<?= Url::to(['users/view', 'id' => $task->user_created]);?>" class="link-regular">Смотреть профиль</a>
       </div>
     </div>

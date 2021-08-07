@@ -10,6 +10,7 @@ use frontend\models\Gallery as Gallery;
 use frontend\models\Address as Address;
 use frontend\models\City as City;
 use frontend\models\Category as Category;
+use frontend\models\CategoryUsers as CategoryUsers;
 use frontend\models\AccountForm as AccountForm;
 use yii\web\UploadedFile;
 
@@ -20,23 +21,30 @@ class AccountController extends SecuredController
 {
     public function actionIndex()
     {
+        UploadedFile::reset();
         $model = User::find()->select(['id', 'email', 'name', 'birthdate', 'city_id', 'about', 'phone', 'telegram', 'skype', 'avatar', 'specifications'])->where([
              'id' => \Yii::$app->user->identity->id,
         ])->one();
         // $model = User::findOne(\Yii::$app->user->identity->id);
 
         $categories = Category::find()->all();
-         
+        
         if ($model->load(\Yii::$app->request->post())) {
             $fields = \Yii::$app->request->post();
-         
-            
+
             if ($model->validate()) {
                 if (empty($fields['categories'])) {
                     $model->role_id = 4;
                 } else {
                     $model->role_id = 3;
+                    foreach($fields['categories'] as $category) {
+                        $catUser = new CategoryUsers();
+                        $catUser->category_id = $category;
+                        $catUser->user_id = \Yii::$app->user->identity->id;
+                        $catUser->save();
+                    }
                 }
+
 
                 $model->email = $fields['User']['email'];
                 $model->birthdate = strtotime($fields['User']['birthdate']);
@@ -64,7 +72,7 @@ class AccountController extends SecuredController
                     }
 
                     $model->portfolioUpload = UploadedFile::getInstances($model, 'portfolioUpload');
-
+                    // var_dump($model->portfolioUpload) ;
                     if ($model->portfolioUpload) {
                         foreach ($model->portfolioUpload as $file) {
                             $galleryFile = new Gallery();
@@ -75,11 +83,21 @@ class AccountController extends SecuredController
                             $galleryFile->save();
                             $file->saveAs('uploads/' . $file->baseName . '.' . $file->extension);
                         }
+
                     }
                 }
             }
         }
 
         return $this->render('index', compact('model', 'categories'));
+    }
+
+    public function actionDelete()
+    {
+        if ($data = \Yii::$app->request->get()) {
+            if (Gallery::findOne($data['id'])->delete()) return true;
+        }
+
+        return false;
     }
 }

@@ -1,5 +1,5 @@
 <?php
-
+use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\widgets\ActiveField; ?>
 
@@ -9,7 +9,7 @@ use yii\widgets\ActiveField; ?>
         <legend>Категории</legend>
     	<?php foreach ($model['category'] as $attr => $label): ?>
     		<label class="checkbox__legend">
-				<input class="visually-hidden checkbox__input" type="checkbox" name="category[]" value="<?= $label->id ?>" <?= (isset($filter['category']) && in_array($label->id, $filter['category'])) ? 'checked' : ''?>>
+				<input class="visually-hidden checkbox__input" type="checkbox" name="category[]" value="<?= $label->id ?>" <?= (isset($filter['category']) && in_array($label->id, (array)$filter['category'])) ? 'checked' : ''?>>
 				<span><?= $label->name ?></span>
 			</label>
 		<?php endforeach; ?>
@@ -37,6 +37,7 @@ use yii\widgets\ActiveField; ?>
       <label class="search-task__name" for="search">Поиск по имени</label>
       <input class="input-middle input" id="search" type="search" name="sQuery" placeholder="" value="<?= (isset($filter['sQuery'])) ? $filter['sQuery'] : '' ?>">
     </div>
-    <button class="button" type="submit">Искать</button>
+    <button class="button width100 mb-1" type="submit">Искать</button>
+    <?= Html::resetButton('Сбросить', [ 'class'=> "button grey-button width100", 'onclick' => 'window.location.replace(window.location.pathname);']); ?>
   <?php ActiveForm::end(); ?>
 </div>

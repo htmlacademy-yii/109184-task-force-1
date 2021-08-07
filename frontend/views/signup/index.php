@@ -9,23 +9,30 @@ use frontend\models\City;
     <h1>Регистрация аккаунта</h1>
     <div class="registration-wrapper">
       <?php $form = ActiveForm::begin(['id' => 'signup-form', 'options' => ['class' => 'registration__user-form form-create', 'name' => 'signup']]); ?>
-        <div class="field-container field-container--registration">
-          <?= $form->field($model, 'email')->textInput(['class' => 'input textarea width100'])->label('Электронная почта'); ?>
+        <div class="field-container">
+          <?= $form->field($model, 'email')->textInput(['class' => 'input textarea width100 mb-0'])->label('Электронная почта'); ?>
         </div>
-        <div class="field-container field-container--registration">
-          <?= $form->field($model, 'login')->textInput(['class' => 'input textarea width100'])->label('Ваш логин'); ?>
+        <div class="field-container">
+          <?= $form->field($model, 'login')->textInput(['class' => 'input textarea width100 mb-0'])->label('Ваш логин'); ?>
         </div>
-        <div class="field-container field-container--registration">
+        <div class="field-container">
           <?= $form->field($model, 'city_id')->dropdownList(
               City::find()->select(['name', 'id'])->indexBy('id')->column(),
-              ['prompt'=>'Выберите город', 'class' => 'multiple-select input town-select registration-town width100']
+              ['prompt'=>'Выберите город', 'class' => 'multiple-select input town-select registration-town width100 mb-0']
           )->label('Город проживания');?>
         </div>
-        <div class="field-container field-container--registration">
-          <?= $form->field($model, 'password')->passwordInput(['class' => 'input textarea width100'])->label('Пароль'); ?>
+        <div class="field-container">
+          <?= $form->field($model, 'password')->passwordInput(['class' => 'input textarea width100 mb-0'])->label('Пароль'); ?>
         </div>
         <?= Html::submitButton('Cоздать аккаунт', ['class' => 'button button__registration']) ?>
       <?php ActiveForm::end() ?>
     </div>
   </section>
 </div>
+<section class="modal enter-form form-modal" id="enter-form">
+    <h2>Вход на сайт</h2>
+    <?php echo $this->render('../site/login-modal', ['model' => $model]); ?>
+    <button class="form-modal-close" type="button">Закрыть</button>
+</section>
+<div class="overlay"></div>
+<script src="js/main.js"></script>

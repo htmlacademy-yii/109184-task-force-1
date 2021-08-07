@@ -20,7 +20,6 @@ class GeoController extends Controller
     	$apikey = "e666f398-c983-4bde-8f14-e3fec900592a";
         $geocode = Yii::$app->request->get()['term'];
 
-        // $address = Address::find()->with('city')->where(['like', 'name', '%' . $geocode . '%', false])->asArray()->all();
         try {
             $address = Yii::$app->cache->get(md5($geocode));
             if ($address) {

@@ -6,6 +6,7 @@ use yii\web\View;
 use yii\web\JsExpression;
 use yii\jui\AutoComplete;
 use yii\helpers\Url;
+use yii\jui\DatePicker;
 ?>
 
 <div class="main-container page-container">
@@ -26,10 +27,13 @@ use yii\helpers\Url;
           )->hint('Выберите категорию')->label('Категория');?>
         </div>
         <div class="field-container">
-          <?= $form->field($model, 'filesUpload[]')->fileInput(['multiple' => 'multiple', 'class' => ''])->label('Файлы')->hint('Загрузите файлы, которые помогут исполнителю лучше выполнить или оценить работу'); ?>
+          <?= $form->field($model, 'filesUpload[]')->fileInput(['multiple' => 'multiple', 'class' => 'taskfiles'])->label('Файлы')->hint('Загрузите файлы, которые помогут исполнителю лучше выполнить или оценить работу'); ?>
+          <div class="files-list">
+          </div>
           <!-- <div class="create__file">
           </div> -->
         </div>
+
         <div class="field-container">
           <?= $form->field($model, 'addressText')->widget(\yii\jui\AutoComplete::classname(), [
               'clientOptions' => [
@@ -84,7 +88,15 @@ use yii\helpers\Url;
             <?= $form->field($model, 'price')->textInput(['class' => 'input textarea input-money width100', 'placeholder' => '1000'])->hint('Не заполняйте для оценки исполнителем')->label('Бюджет'); ?>
           </div>
           <div class="field-container create__price-time--wrapper">
-            <?= $form->field($model, 'expire_date')->textInput(['class' => 'input-middle input input-date width100', 'placeholder' => 'YYYY-MM-DD'])->hint('Укажите крайний срок исполнения')->label('Сроки исполнения'); ?>
+            <?= $form->field($model, 'expire_date')->widget(\yii\jui\DatePicker::classname(), [
+                'language' => 'ru',
+                'dateFormat' => 'yyyy-MM-dd',
+                'options' => [
+                  'class' => 'input-middle input input-date width100',
+                  'placeholder' => 'ГГГГ-ММ-ДД',
+                  'autocomplete' => 'off'
+                ]
+            ])->hint('Укажите крайний срок исполнения')->label('Сроки исполнения') ?>
           </div>
         </div>
 
@@ -118,3 +130,60 @@ use yii\helpers\Url;
     <?= Html::submitButton('Опубликовать', ['class' => 'button', 'form' => 'task-form']) ?>
   </section>
 </div>
+
+<script>
+  if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+  }
+  var imgIndex = 0;
+  document.querySelector('.taskfiles').addEventListener('change', function() {
+      if (this.files) {
+        let files = this.files;
+        
+        for (let i = 0; i < files.length; i++) {
+          var img = document.createElement('img'); 
+          
+          img.onload = () => {
+              URL.revokeObjectURL(img.src);  // no longer needed, free memory
+          } 
+          img.src = URL.createObjectURL(files[i]);
+          img.width = '100';
+          img.style.marginLeft = "10px";
+
+          var wrap = document.createElement("div");
+          wrap.className = "img-wrap wrap-id-" + imgIndex; 
+          document.querySelector(".files-list").appendChild(wrap).appendChild(img)
+
+
+          var button = document.createElement("button");
+          button.className = "clear";
+          button.setAttribute('type', 'button');
+          button.setAttribute('data-id', '0');
+
+          document.querySelector(".wrap-id-" + imgIndex).prepend(button)
+          imgIndex++;
+        }
+      }
+  });  
+
+</script>
+<?php
+$script = <<< JS
+$('body').on('click', '.clear', function(e) {
+  e.preventDefault();
+    let butt = $(this)
+    if (butt.data('id') == 0) {
+      butt.next().remove()
+      butt.remove()
+    }
+    $.ajax({
+       url: 'account/delete',
+       data: {id: butt.data('id')},
+       success: function(data) {
+          butt.next().remove()
+          butt.remove()
+       }
+    });
+});
+JS;
+$this->registerJs($script, View::POS_READY);

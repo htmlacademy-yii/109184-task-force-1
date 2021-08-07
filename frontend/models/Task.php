@@ -68,7 +68,7 @@ class Task extends \yii\db\ActiveRecord
             [['address_id'], 'exist', 'skipOnError' => true, 'targetClass' => Address::className(), 'targetAttribute' => ['address_id' => 'id']],
             [['status'], 'exist', 'skipOnError' => true, 'targetClass' => TaskStatus::className(), 'targetAttribute' => ['status' => 'id']],
             [['filesUpload'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 10, 'extensions' => 'png, jpg, jpeg'],
-            [['addressText'], 'required'],
+            [['addressText'], 'required', 'message' => 'Поле "Локация" должно быть заполнено'],
             [['addressText'], 'string', 'max' => 255],
             [['position'], 'string', 'max' => 255]
 
@@ -93,6 +93,7 @@ class Task extends \yii\db\ActiveRecord
             'user_created' => 'User Created',
             'status' => 'Status',
             'created_at' => 'Created At',
+            'addressText' => 'Локация',
         ];
     }
 
@@ -264,20 +265,51 @@ class Task extends \yii\db\ActiveRecord
     }
 
     public function checkRespond() {
-        if (Respond::find()->with('user')->where(['task_id' => $this->id])->where(['user_id' => \Yii::$app->user->identity->id])->one()) {
+        if (Respond::find()->where(['task_id' => $this->id])->andWhere(['user_id' => \Yii::$app->user->identity->id])->one()) {
             return true;
         }
 
         return false;
     }
 
-    // public function getStatus(AbstractAction $action)
-    // {
-    //     if ($action->checkRole($this->executantID, $this->clientID, $this->currentUserID)){
-    //         return $action;
-    //     }
+    public function getDuration() {
+        $mess = '';
+        $userDate = new \DateTime(date('Y-m-d H:i:s', $this->user->created_at));
+        $duration   = $userDate ->diff(new \DateTime('now'));
+        
+        if ($duration->y) {
+            $laststr = 'лет';
+            if (substr($duration->y, -1) == '1') $laststr = 'год';
+            if (substr($duration->y, -1) == '2' || substr($duration->y, -1) == '3' || substr($duration->y, -1) == '4') $laststr = 'годa';
 
-    //     return false;
-    // }
+            $mess .= $duration->y . " $laststr ";
+        }
+
+        if ($duration->m) {
+            $laststr = 'месяцев';
+            if (substr($duration->m, -1) == '1') $laststr = 'месяц';
+            if (substr($duration->m, -1) == '2' || substr($duration->m, -1) == '3' || substr($duration->m, -1) == '4') $laststr = 'месяца';
+
+            $mess .= $duration->m . " $laststr ";
+        }
+
+        if ($duration->d) {
+            $laststr = 'дней';
+            if (substr($duration->d, -1) == '1') $laststr = 'день';
+            if (substr($duration->d, -1) == '2' || substr($duration->d, -1) == '3' || substr($duration->d, -1) == '4') $laststr = 'дня';
+
+            $mess .= $duration->d . " $laststr ";
+        }
+
+        if ($duration->h) {
+            $laststr = 'часов';
+            if (substr($duration->h, -1) == '1') $laststr = 'час';
+            if (substr($duration->h, -1) == '2' || substr($duration->h, -1) == '3' || substr($duration->h, -1) == '4') $laststr = 'часа';
+
+            $mess .= $duration->h . " $laststr ";
+        }
+
+        return $mess ?? 'несколько минут';
+    }
 
 }

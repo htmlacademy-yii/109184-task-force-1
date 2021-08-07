@@ -24,7 +24,7 @@ class Gallery extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'gallery';
+        return 'gallery_images';
     }
 
     /**
@@ -34,7 +34,6 @@ class Gallery extends \yii\db\ActiveRecord
     {
         return [
             [['id', 'post_id', 'user_id', 'created_at'], 'integer'],
-            [['link'], 'string'],
             [['post_type'], 'string', 'max' => 255],
             [['id'], 'unique'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -74,6 +73,6 @@ class Gallery extends \yii\db\ActiveRecord
      */
     public function getPost()
     {
-        return $this->hasOne(Tasks::className(), ['id' => 'post_id']);
+        return $this->hasOne(Tasks::className(), ['id' => 'item_id']);
     }
 }

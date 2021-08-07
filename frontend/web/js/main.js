@@ -6,6 +6,7 @@ for (var i = 0; i < openModalLinks.length; i++) {
   var modalLink = openModalLinks[i];
 
   modalLink.addEventListener("click", function (event) {
+    event.preventDefault();
     var modalId = event.currentTarget.getAttribute("data-for");
 
     var modal = document.getElementById(modalId);
@@ -28,7 +29,9 @@ for (var j = 0; j < closeModalLinks.length; j++) {
   closeModalLink.addEventListener("click", closeModal)
 }
 
-document.getElementById('close-modal').addEventListener("click", closeModal);
+if (document.getElementById('close-modal') !== null) {
+  document.getElementById('close-modal').addEventListener("click", closeModal);
+}
 
 var starRating = document.getElementsByClassName("completion-form-star");
 
@@ -64,7 +67,11 @@ if (cityDropdown.length) {
 
   cityDropdown.addEventListener('change', function(event) {
     var selectedCity = event.target.value;
-
-    window.location = '/site/city?city=' + selectedCity;
+    if (selectedCity != 0) {
+      window.location = '/tasks?city=' + selectedCity;
+    } else {
+      cityDropdown.classList.add("hidden");
+      document.getElementById('cityInput').classList.remove("hidden");
+    }
   });
 }
