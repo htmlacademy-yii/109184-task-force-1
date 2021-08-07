@@ -8,6 +8,8 @@ use frontend\models\User as User;
 use frontend\models\UserFilterForm as UserFilterForm;
 use frontend\models\Favourite as Favourite;
 use frontend\models\Review as Review;
+use frontend\models\Gallery as Gallery;
+use yii\data\Pagination;
 
 /**
  * Users controller
@@ -19,14 +21,14 @@ class UsersController extends SecuredController
     	$query = User::find();
     	$users = $query
     	->where(['role_id' => '3'])
-    	->with('city')->all();
+    	->with('city')->with('review')->with('respond');
 
     	$taskForm = new UserFilterForm();
 		$taskForm->getCategory();
 		$taskForm->getWorkType();
 		
-    	if (Yii::$app->request->getIsPost()) {
-        	$filter = Yii::$app->request->post();
+        $filter = Yii::$app->request->get() ? Yii::$app->request->get() : Yii::$app->request->post();
+    	if ($filter) {
 
         	if (isset($filter['category'])) {
 				$query->leftJoin('category_users', 'category_users.user_id = users.id')->andWhere(['in', 'category_users.category_id', $filter['category']]);
@@ -56,17 +58,18 @@ class UsersController extends SecuredController
 				$query->andWhere(['like', 'name', $filter['sQuery']]);
 			}
         }
+        $pages = new Pagination(['totalCount' => $query->count()]);
+        $users = $query->offset($pages->offset)
+        ->limit($pages->limit)->all();
 
-        $users = $query->all();
-
-        return $this->render('users', ['users' => $users, 'model' => $taskForm, 'filter' => $filter]);
+        return $this->render('users', ['users' => $users, 'model' => $taskForm, 'filter' => $filter, 'pages' => $pages]);
     }
 
     public function actionView($id)
     {
         $user = User::find()->where(['users.id' => $id])
-        ->with('city')->one();
-
+        ->with('city')->with('gallery')->with('category')->one();
+      
         $reviews = Review::find()->with('task')->with('userReciever')->where(['user_reciever' => $id])->all();
         
         if (!$user) {
@@ -74,5 +77,26 @@ class UsersController extends SecuredController
         }
 
         return $this->render('user', ['user' => $user, 'reviews' => $reviews]);
+    }
+
+    public function actionBookmark() {
+    	if (Yii::$app->request->get()) {
+    		if ($favUser = Favourite::find()->where(['user_added' => \Yii::$app->user->identity->id])->andWhere(['user_favourite' => Yii::$app->request->get()['id']])->one()) {
+    			if ($favUser->delete()) {
+	    			return true;
+	    		}
+    		} else {
+	    		$favUser = new Favourite();
+	    		$favUser->user_added = \Yii::$app->user->identity->id; 
+	    		$favUser->user_favourite = Yii::$app->request->get()['id']; 
+	    		$favUser->created_at = time(); 
+
+	    		if ($favUser->save()) {
+	    			return true;
+	    		}
+    		}
+    	}
+
+    	return false;
     }
 }

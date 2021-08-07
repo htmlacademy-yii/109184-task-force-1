@@ -21,8 +21,16 @@ return [
             'enableStrictParsing' => false,
             'rules' => [
                 'task/view/<id:\d+>' => 'tasks/view',
+                'tasks/page/<page:\d+>' => 'tasks/view',
                 'user/view/<id:\d+>' => 'users/view',
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'api/messages']
+                'users/page/<page:\d+>' => 'users/view',
+                    [
+                        'class' => 'yii\rest\UrlRule', 
+                        'controller' => 'api/messages', 
+                        'extraPatterns' => [
+                            'GET /' => 'new',
+                        ]
+                    ]
             ],
         ],
         'authClientCollection' => [

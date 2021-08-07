@@ -1,5 +1,5 @@
 <?php
-
+use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\widgets\ActiveField; ?>
 
@@ -9,12 +9,12 @@ use yii\widgets\ActiveField; ?>
         <legend>Категории</legend>
     	<?php foreach ($model['category'] as $attr => $label): ?>
     		<label class="checkbox__legend">
-				<input class="visually-hidden checkbox__input" type="checkbox" name="category[]" value="<?= $label->id ?>" <?= (isset($filter['category']) && in_array($label->id, $filter['category'])) ? 'checked' : ''?>>
+				<input class="visually-hidden checkbox__input" type="checkbox" name="category[]" value="<?= $label->id ?>" <?= (isset($filter['category']) && in_array($label->id, (array)$filter['category'])) ? 'checked' : ''?>>
 				<span><?= $label->name ?></span>
 			</label>
 		<?php endforeach; ?>
     </fieldset>
-    <fieldset class="search-task__categories">
+    <!-- <fieldset class="search-task__categories">
         <legend>Дополнительно</legend>
       	<?php foreach ($model['worktype'] as $attr => $label): ?>
       		<div>
@@ -24,12 +24,12 @@ use yii\widgets\ActiveField; ?>
     				</label>
     			</div>
 		    <?php endforeach; ?>
-    </fieldset>
+    </fieldset> -->
     <div class="field-container">
       <label class="search-task__name" for="period">Период</label>
       <select class="multiple-select input" id="period" size="1" name="period">
+        <option value="">Не выбрано</option>
       	<?php foreach ($model['period'] as $attr => $label): ?>
-          <option value="">Не выбрано</option>
         	<option <?= (isset($filter['period']) && $filter['period'] == $attr) ? 'selected' : '' ?> value="<?= $attr ?>"><?= $label ?></option>
         <?php endforeach; ?>
       </select>
@@ -38,6 +38,7 @@ use yii\widgets\ActiveField; ?>
       <label class="search-task__name" for="search">Поиск по названию</label>
       <input class="input-middle input" id="search" type="search" name="sQuery" placeholder="" value="<?= (isset($filter['sQuery'])) ? $filter['sQuery'] : '' ?>">
     </div>
-    <button class="button" type="submit">Искать</button>
+    <button class="button width100 mb-1" type="submit">Искать</button>
+    <?= Html::resetButton('Сбросить', [ 'class'=> "button grey-button width100", 'onclick' => 'window.location.replace(window.location.pathname);']); ?>
   <?php ActiveForm::end(); ?>
 </div>

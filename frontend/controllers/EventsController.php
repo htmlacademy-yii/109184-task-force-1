@@ -5,13 +5,7 @@ use yii\web\Controller;
 use Yii;
 use yii\db\Query;
 use yii\web\NotFoundHttpException;
-use frontend\models\User as User;
-use frontend\models\Gallery as Gallery;
-use frontend\models\Address as Address;
-use frontend\models\City as City;
-use frontend\models\Category as Category;
-use frontend\models\AccountForm as AccountForm;
-use yii\web\UploadedFile;
+use frontend\models\Notification as Notification;
 
 /**
  * Events controller
@@ -20,5 +14,13 @@ class EventsController extends SecuredController
 {
     public function actionIndex()
     {
+        $notifications = Notification::find()->select('notifications.*, tasks.title')
+        ->with('notificationType')
+        ->leftJoin('tasks', 'tasks.id = notifications.task_id')
+        ->where(['user_created' => \Yii::$app->user->identity->id])
+        ->andWhere(['<>', 'user_id',  \Yii::$app->user->identity->id])
+        ->asArray()->all();
+        
+        return json_encode($notifications, JSON_PRETTY_PRINT);
     }
 }

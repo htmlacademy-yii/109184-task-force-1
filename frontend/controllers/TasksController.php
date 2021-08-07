@@ -14,7 +14,9 @@ use frontend\models\RefuseForm as RefuseForm;
 use frontend\models\Gallery as Gallery;
 use frontend\models\Address as Address;
 use frontend\models\City as City;
+use frontend\models\Notification as Notification;
 use yii\web\UploadedFile;
+use yii\data\Pagination;
 
 /**
  * Tasks controller
@@ -24,22 +26,30 @@ class TasksController extends SecuredController
     public function actionIndex()
     {
     	$query = Task::find();
+
     	$tasks = $query
     	->where(['tasks.status' => '1'])
     	->with('category')
     	->with('city');
 
-		$taskForm = new TaskFilterForm();
-		$taskForm->getCategory();
-		$taskForm->getWorkType();
-		$taskForm->getPeriod();
+		$model = new TaskFilterForm();
+		$model->getCategory();
+		$model->getWorkType();
+		$model->getPeriod();
 
-        $filter = Yii::$app->request->post();
+        $filter = Yii::$app->request->get() ? Yii::$app->request->get() : Yii::$app->request->post();
+        
     	if ($filter) {
 
-        	if (isset($filter['category'])) {
-				$query->andWhere(['in', 'category_id', $filter['category']]);
-        	}
+        	if (isset($filter['city'])) {
+				$query->andWhere(['tasks.city_id' => $filter['city']]);
+        	} else {
+                $query->andWhere(['tasks.city_id' => \Yii::$app->user->identity->city_id]);
+            }
+
+            if (isset($filter['category'])) {
+                $query->andWhere(['in', 'category_id', $filter['category']]);
+            } 
 
         	if (isset($filter['work_type'])) {
 				$query->andWhere(['in', 'work_type_id', $filter['work_type']]);
@@ -63,9 +73,11 @@ class TasksController extends SecuredController
 				$query->andWhere(['like', 'title', $filter['sQuery']]);
 			}
         }
+        $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 5]);
 
-        $tasks = $query->all();
-        return $this->render('tasks', ['tasks' => $tasks, 'model' => $taskForm, 'filter' => $filter]);
+        $tasks = $query->offset($pages->offset)->limit($pages->limit)->all();
+
+        return $this->render('tasks', compact('tasks', 'model', 'filter', 'pages'));
     }
 
     public function actionView($id)
@@ -77,12 +89,12 @@ class TasksController extends SecuredController
         $responseForm = new ResponseForm();
         $requestForm = new RequestForm();
         $refuseForm = new RefuseForm();
-    	
+
         if (!$task) {
             throw new NotFoundHttpException("Задание с ID $id не найден");
         }
 
-        return $this->render('task', ['task' => $task, 'responds' => $responds, 'responseForm' => $responseForm, 'requestForm' => $requestForm, 'refuseForm' => $refuseForm]);
+        return $this->render('task', ['task' => $task, 'responds' => $responds, 'responseForm' => $responseForm, 'requestForm' => $requestForm, 'refuseForm' => $refuseForm, 'images' => $galleryImages]);
     }
 
     public function actionCreate()
@@ -175,6 +187,9 @@ class TasksController extends SecuredController
                 $task = Task::findOne($taskID);
                 $task->status = 6; // Провалено
                 $task->save();
+
+                (new Notification())->setNotification(['type' => 3, 'task_id' => $taskID, 'user_id' => \Yii::$app->user->identity->id ]);
+
             }
         }
 
@@ -191,6 +206,8 @@ class TasksController extends SecuredController
         $task->status = 2; // В работе
         $task->save();
 
+        (new Notification())->setNotification(['type' => 4, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
+        (new Notification())->setNotification(['type' => 6, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
         return $this->redirect(['task/view/' . $task->id]);
     }
 
@@ -207,6 +224,8 @@ class TasksController extends SecuredController
                 $respond->created_at = strtotime('now');
                 $respond->is_accepted = null;
                 $respond->save();
+
+                (new Notification())->setNotification(['type' => 1, 'task_id' => $fields['task_id'], 'user_id' => \Yii::$app->user->identity->id ]);
             }
         }
         
@@ -232,6 +251,8 @@ class TasksController extends SecuredController
             $review->rate = $fields['rating'];
             $review->created_at = strtotime('now');
             $review->save();
+
+            (new Notification())->setNotification(['type' => 5, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
         }
 
         return $this->redirect(['task/view/' . $task->id]);

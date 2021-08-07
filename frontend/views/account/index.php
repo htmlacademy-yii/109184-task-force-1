@@ -1,7 +1,9 @@
 <?php
 use yii\helpers\Html;
+use yii\web\View;
 use yii\bootstrap\ActiveForm;
 use frontend\models\City;
+use yii\jui\DatePicker;
 ?>
 
 <div class="main-container page-container">
@@ -12,7 +14,7 @@ use frontend\models\City;
         <h3 class="div-line">Настройки аккаунта</h3>
         <div class="account__redaction-section-wrapper">
           <div class="account__redaction-avatar">
-            <img id="avatar" src="<?= ($model->avatar) ? $model->avatar : './img/no-photo.png' ?>" width="156" height="156">
+            <img id="avatar" src="<?= ($model->avatar) ? $model->avatar : './img/no-photo.png' ?>" width="150" height="150">
             <?= $form->field($model, 'avatarUpload')->fileInput(['id' => 'upload-avatar'])->label('Сменить аватар', ['class' => 'link-regular']); ?>
           <!--   <input type="file" name="avatar" id="upload-avatar">
             <label for="upload-avatar" class="link-regular">Сменить аватар</label> -->
@@ -30,7 +32,16 @@ use frontend\models\City;
               )->label('Город');?>
             </div>
             <div class="account__input account__input--date">
-              <?= $form->field($model, 'birthdate')->textInput(['type' => 'text', 'id' => 'birthdate', 'class' => 'input-middle input width100',  'value' => \Yii::$app->formatter->asDate($model->birthdate, 'php:d.m.Y'), 'placeholder' => '15.08.1987'])->label('День рождения'); ?>
+              <?= $form->field($model, 'birthdate')->widget(\yii\jui\DatePicker::classname(), [
+                'language' => 'ru',
+                'dateFormat' => 'yyyy-MM-dd',
+                'value' => \Yii::$app->formatter->asDate($model->birthdate, 'php:d.m.Y'),
+                'options' => [
+                  'class' => 'input textarea width100',
+                  'placeholder' => 'ГГГГ-ММ-ДД',
+                  'autocomplete' => 'off'
+                ]
+            ])->label('День рождения') ?>
             </div>
             <div class="account__input account__input--info">
               <?= $form->field($model, 'about')->textarea(['rows' => 11, 'class' => 'input textarea width100', 'placeholder' => 'Place your text'])->label('Информация о себе'); ?>
@@ -66,9 +77,11 @@ use frontend\models\City;
             <?= $form->field($model, 'portfolioUpload[]')->fileInput(['multiple' => 'multiple', 'class' => 'portfolio'])->label('Выбрать фотографии'); ?>
             <div class="portfolio-list">
               <?php if (!empty($model->gallery)) { ?>
-
                 <?php foreach ($model->gallery as $img) { ?>
-                  <img src="<?= $img->link?>" alt="" width="100">
+                  <div class="img-wrap">
+                    <button type="button" class="clear" data-id="<?= $img->id?>"></button>
+                    <img data-fancybox src="<?= $img->link?>" alt="" width="100">
+                  </div>
                 <?php } ?>
               <?php } ?>
             </div>
@@ -119,18 +132,10 @@ use frontend\models\City;
     <?php ActiveForm::end() ?>
   </section>
 </div>
-<script src="js/dropzone.js"></script>
 <script>
-  const birthdate = document.querySelector('#birthdate');
-
-  birthdate.addEventListener('focus', (event) => {
-    birthdate.setAttribute('type', 'date');
-  });
-
-  birthdate.addEventListener('blur', (event) => {
-    birthdate.setAttribute('type', 'text');
-  });
-
+  if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+  }
   document.querySelector('input[type="file"]').addEventListener('change', function() {
       if (this.files && this.files[0]) {
           var img = document.querySelector('#avatar');
@@ -141,24 +146,58 @@ use frontend\models\City;
           img.src = URL.createObjectURL(this.files[0]); // set src to blob url
       }
   });  
-
+  var imgIndex = 0;
   document.querySelector('.portfolio').addEventListener('change', function() {
       if (this.files) {
         let files = this.files;
         
-        for (var file in files) {
+        for (let i = 0; i < this.files.length; i++) {
           var img = document.createElement('img'); 
+          img.src = URL.createObjectURL(this.files[i]);
           img.onload = () => {
               URL.revokeObjectURL(img.src);  // no longer needed, free memory
           } 
-          img.src = URL.createObjectURL(this.files[file]);
           img.width = '100';
-          img..style.marginLeft = "10px";
-          document.querySelector(".portfolio-list").appendChild(img);
+          img.style.marginLeft = "10px";
+          img.setAttribute('data-fancybox', '');
+
+          var wrap = document.createElement("div");
+          wrap.className = "img-wrap wrap-id-" + imgIndex; 
+          document.querySelector(".portfolio-list").appendChild(wrap).appendChild(img)
+
+          // document.querySelector(".portfolio-list").appendChild('<div class="img-wrap">'
+          //   +'<button type="button" class="clear" data-id="0"></button>'
+          //   + img + '</div>');
+
+          var button = document.createElement("button");
+          button.className = "clear";
+          button.setAttribute('type', 'button');
+          button.setAttribute('data-id', '0');
+
+          document.querySelector(".wrap-id-" + imgIndex).prepend(button)
+          imgIndex++;
         }
       }
-
-      
-  });
+  });  
 
 </script>
+<?php
+$script = <<< JS
+$('body').on('click', '.clear', function(e) {
+  e.preventDefault();
+    let butt = $(this)
+    if (butt.data('id') == 0) {
+      butt.next().remove()
+      butt.remove()
+    }
+    $.ajax({
+       url: 'account/delete',
+       data: {id: butt.data('id')},
+       success: function(data) {
+          butt.next().remove()
+          butt.remove()
+       }
+    });
+});
+JS;
+$this->registerJs($script, View::POS_READY);

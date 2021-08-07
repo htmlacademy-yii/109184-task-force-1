@@ -3,6 +3,7 @@
 namespace frontend\models;
 
 use Yii;
+use frontend\models\Notification as Notification;
 
 /**
  * This is the model class for table "messages".
@@ -61,6 +62,13 @@ class Message extends \yii\db\ActiveRecord
             'status' => 'Status',
             'created_at' => 'Created At',
         ];
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($insert) {
+            (new Notification())->setNotification(['type' => 2, 'task_id' => $this->task_id, 'user_id' => \Yii::$app->user->identity->id ]);
+        }
     }
 
     /**

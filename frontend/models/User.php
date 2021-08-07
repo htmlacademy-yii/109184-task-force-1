@@ -158,7 +158,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      */
     public function getFavourites()
     {
-        return $this->hasMany(Favourites::className(), ['user_added' => 'id']);
+        return $this->hasMany(Favourite::className(), ['user_added' => 'id']);
     }
 
     /**
@@ -166,9 +166,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getFavourites0()
+    public function getFavouriteMe()
     {
-        return $this->hasMany(Favourites::className(), ['user_favourite' => 'id']);
+        return $this->hasMany(Favourite::className(), ['user_favourite' => 'id']);
     }
 
     /**
@@ -206,9 +206,13 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getResponds()
+    public function getRespond()
     {
-        return $this->hasMany(Responds::className(), ['user_id' => 'id']);
+        return $this->hasMany(Respond::className(), ['user_id' => 'id'])
+            ->join('LEFT JOIN', 'tasks', 'tasks.id = responds.task_id')
+            ->andWhere(['tasks.status' => '5'])
+            ->andWhere(['responds.user_id' => $this->id])
+            ->andWhere(['responds.is_accepted' => 1]);;
     }
 
     /**
@@ -216,9 +220,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getReviews()
+    public function getReview()
     {
-        return $this->hasMany(Reviews::className(), ['user_created' => 'id']);
+        return $this->hasMany(Review::className(), ['user_created' => 'id']);
     }
 
     /**
@@ -236,9 +240,10 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTasks()
+    public function getTask()
     {
-        return $this->hasMany(Tasks::className(), ['user_created' => 'id']);
+        return $this->hasMany(Task::className(), ['user_created' => 'id'])
+            ;
     }
 
     /**
@@ -278,7 +283,12 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      */
     public function getCategory()
     {
-        return $this->hasMany(Category::className(), ['id' => 'user_id'])->viaTable('category_users', ['category_id' => 'id']);;
+        return $this->hasMany(Category::className(), ['id' => 'category_id'])->viaTable('category_users', ['user_id' => 'id']);;
+    }
+
+    public function getCategoryUsers()
+    {
+        return $this->hasOne(CategoryUsers::className(), ['user_id' => 'id']);
     }
 
     public function getLogin()

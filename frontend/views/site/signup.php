@@ -33,3 +33,5 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
+<div class="overlay"></div>
+<script src="js/main.js"></script>

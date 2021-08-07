@@ -4,15 +4,23 @@
       <h1>Новые задания</h1>
       <?= $this->render('tasklist', ['tasks' => $tasks]);?>
     </div>
+    
     <div class="new-task__pagination">
-      <ul class="new-task__pagination-list">
-        <li class="pagination__item"><a href="#"></a></li>
-        <li class="pagination__item pagination__item--current">
-          <a>1</a></li>
-        <li class="pagination__item"><a href="#">2</a></li>
-        <li class="pagination__item"><a href="#">3</a></li>
-        <li class="pagination__item"><a href="#"></a></li>
-      </ul>
+      <?= \yii\widgets\LinkPager::widget([
+       'pagination' => $pages,
+       'firstPageLabel' => '',
+       'lastPageLabel' => '',
+       'prevPageLabel' => false,
+       'nextPageLabel' => false,
+       'prevPageCssClass' => 'pagination__item',
+        'nextPageCssClass' => 'pagination__item',
+       'pageCssClass' => 'pagination__item',
+       'activePageCssClass' => 'pagination__item--current',
+       'options' => [
+          'class' => 'new-task__pagination-list',
+        ],
+
+      ]); ?>
     </div>
   </section>
   <section class="search-task">

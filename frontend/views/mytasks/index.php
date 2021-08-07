@@ -12,7 +12,7 @@
           Завершённые
         </a>
       </li>
-      <li class="menu-toggle__item  menu-toggle__item--new <?= (isset($filter['status']) && $filter['status'] == 'new') ? 'menu_toggle__item--current' : '' ?>">
+      <li class="menu-toggle__item  menu-toggle__item--new <?= ((isset($filter['status']) && $filter['status'] == 'new') || !isset($filter['status'])) ? 'menu_toggle__item--current' : '' ?>">
         <div class="menu-toggle__svg-wrapper">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect opacity="0.01" x="24" y="24" width="24" height="24" transform="rotate(180 24 24)" fill="none"/>
