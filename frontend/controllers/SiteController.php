@@ -7,7 +7,6 @@ use Yii;
 use yii\base\InvalidArgumentException;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
-// use yii\web\User;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use frontend\models\LoginForm as LoginForm;
@@ -29,6 +28,7 @@ use yii\authclient\AuthAction;
 class SiteController extends Controller
 {
     public $cities;
+    public $client;
     /**
      * {@inheritdoc}
      */
@@ -83,7 +83,7 @@ class SiteController extends Controller
     public function onAuthSuccess($client)
     {
         $attributes = $client->getUserAttributes();
-        
+
         /* @var $auth Auth */
         $auth = Auth::find()->where([
             'source' => $client->getId(),
@@ -102,30 +102,20 @@ class SiteController extends Controller
                 } else {
                     $password = Yii::$app->security->generateRandomString(6);
                     $user = new User([
-                        'role_id' => 3, // исполнитель
                         'login' => $attributes['nickname'],
                         'name' => $attributes['first_name'] . " " . $attributes['last_name'],
-                        'email' => $attributes['email'],
+                        'email' => $attributes['email'] ?? null,
                         'password' => $password,
                         'birthdate' => strtotime($attributes['bdate']),
                         'avatar' => $attributes['photo'],
-                        'created_at' => time()
+                        'created_at' => time(),
+                        'source_id' => $attributes['id']
                     ]);
                     $user->generateAuthKey();
                     $user->generatePasswordResetToken();
                     $transaction = $user->getDb()->beginTransaction();
                     if ($user->save()) {
-                        $auth = new Auth([
-                            'user_id' => $user->id,
-                            'source' => $client->getId(),
-                            'source_id' => (string)$attributes['id'],
-                        ]);
-                        if ($auth->save()) {
-                            $transaction->commit();
-                            Yii::$app->user->login($user);
-                        } else {
-                            print_r($auth->getErrors());
-                        }
+                        return Yii::$app->response->redirect(Url::to('/signup/choose'));
                     } else {
                         print_r($user->getErrors());
                     }
@@ -176,7 +166,8 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+
+        if ($model->load(Yii::$app->request->post()) && $model->login($auth->user)) {
             return Yii::$app->response->redirect(Url::to('/tasks'));
         } else {
             $model->password = '';
@@ -238,15 +229,29 @@ class SiteController extends Controller
      */
     public function actionSignup()
     {
-        $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Thank you for registration. Please check your inbox for verification email.');
-            return $this->goHome();
+        $this->client = Yii::$app->authClientCollection->getClient('vkontakte');
+        
+        $attributes = $this->client->getUserAttributes();
+
+        if (isset($attributes['email'])) {
+            $user = User::find()->where(['email' => $attributes['email']])->one();
+        } else {
+            $user = User::find()->where(['source_id' => $attributes['id']])->one();
         }
 
-        return $this->render('signup', [
-            'model' => $model,
-        ]);
+        if (\Yii::$app->request->post()) {
+            $auth = new Auth([
+                'user_id' => $user->id,
+                'source' => $this->client->getId(),
+                'source_id' => (string)$attributes['id'],
+            ]);
+            if ($auth->save()) {
+                Yii::$app->user->login($user);
+                return Yii::$app->response->redirect(Url::to('/tasks'));
+            } else {
+                print_r($auth->getErrors());
+            }
+        }
     }
 
     /**

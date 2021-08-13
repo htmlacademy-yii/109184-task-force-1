@@ -12,6 +12,7 @@ class SignupForm extends Model
     public $email;
     public $password;
     public $city_id;
+    public $role_id;
     public $login;
 
 
@@ -34,6 +35,8 @@ class SignupForm extends Model
 
             ['password', 'required'],
             ['password', 'string', 'min' => Yii::$app->params['user.passwordMinLength']],
+
+            ['role_id', 'required'],
         ];
     }
 
@@ -52,7 +55,7 @@ class SignupForm extends Model
         $user->login = $this->login;
         $user->email = $this->email;
         $user->city_id = $this->city_id;
-        $user->role_id = 3;
+        $user->role_id = $this->role_id;
         $user->password = Yii::$app->security->generatePasswordHash($this->password);
         
         return $user->save();

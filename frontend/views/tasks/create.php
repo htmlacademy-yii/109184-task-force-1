@@ -49,7 +49,7 @@ use yii\jui\DatePicker;
                                           label: ele.GeoObject.metaDataProperty.GeocoderMetaData.text,
                                           value: ele.GeoObject.metaDataProperty.GeocoderMetaData.text,
                                           pos: ele.GeoObject.Point.pos,
-                                          city: ele.GeoObject.metaDataProperty.GeocoderMetaData.AddressDetails.text
+                                          city: ele.GeoObject.name
                                       });
                                   });
                                 } else {
@@ -69,9 +69,9 @@ use yii\jui\DatePicker;
                   'minLength'=>'2',
                   'select' => new JsExpression("
                     function(event, ui) {
+                      console.log(ui)
                       jQuery('#position').val(ui.item.pos)
                       jQuery('#city').val(ui.item.city)
-                      console.log(ui)
                     }")
               ],
               'options'=>[

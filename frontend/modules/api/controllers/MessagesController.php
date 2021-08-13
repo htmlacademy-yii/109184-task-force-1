@@ -20,8 +20,11 @@ class MessagesController extends ActiveController
           $requestParams = \Yii::$app->getRequest()->getQueryParams();
       }
 
-      $result = $this->modelClass::find()->where(['task_id' => $requestParams['task_id']])->all();
-            
+      $result = $this->modelClass::find()
+        ->where(['task_id' => $requestParams['task_id']])
+        ->andWhere(['user_from' => \Yii::$app->user->identity->id])
+        ->orWhere(['user_to' => \Yii::$app->user->identity->id])->all();
+ 
       return $result;
     } 
 }

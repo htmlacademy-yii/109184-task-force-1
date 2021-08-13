@@ -195,7 +195,7 @@ footer {
   display: none;
   position: absolute;
   top: 83px;
-  right: 106px;
+  right: 150px;
   z-index: 10;
   background-color: #ffffff;
   padding-left: 10px;
@@ -279,7 +279,7 @@ footer {
   display: none;
   position: absolute;
   top: 70px;
-  right: 23px;
+  right: -9px;
   z-index: 10;
   background-color: #b8dbff;
   border-radius: 8px;
@@ -331,7 +331,7 @@ footer {
   position: relative;
   padding-right: 15px;
   margin-left: 17px;
-  margin-right: 42px;
+  margin-right: 10px;
   -ms-flex-item-align: center;
       align-self: center;
   cursor: pointer; }
@@ -2722,4 +2722,54 @@ text-decoration: none;}
   background-position: center;
   border: 0;
   background-color: #ddd;
+}
+
+.form_radio_btn {
+  display: inline-flex;
+  /*margin-right: 10px;*/
+  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: space-around;
+  justify-content: space-evenly;
+  text-align: center;
+}
+.form_radio_btn input[type=radio] {
+  display: none;
+}
+.form_radio_btn label {
+  display: inline-block;
+  cursor: pointer;
+  padding: 20px 15px;
+  line-height: 34px;
+  border: 1px solid #999;
+  border-radius: 6px;
+  user-select: none;
+  width: 200px;
+  font-size: 1.2em;
+}
+ 
+/* Checked */
+.form_radio_btn input[type=radio]:checked + label {
+  background: #1e90ff;
+  color:  #fff;
+}
+ 
+/* Hover */
+.form_radio_btn label:hover {
+  color: #666;
+}
+ 
+/* Disabled */
+.form_radio_btn input[type=radio]:disabled + label {
+  background: #efefef;
+  color: #666;
+}
+
+.choose-form {
+  margin-bottom: 20px;
+}
+
+.choose-form h1 {
+  text-align: center;
 }

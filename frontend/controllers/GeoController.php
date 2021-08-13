@@ -10,7 +10,6 @@ use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use GuzzleHttp\Client;
 use yii\web\Response;
-use frontend\models\Address as Address;
 use yii\caching\TagDependency;
 
 class GeoController extends Controller 

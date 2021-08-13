@@ -28,13 +28,5 @@ class AccountForm extends Model
             ['password_repeat', 'compare', 'compareAttribute'=>'password', 'skipOnEmpty' => false, 'message'=>"Пароли не совпадают" ],
         ];
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [];
-    }
     
 }

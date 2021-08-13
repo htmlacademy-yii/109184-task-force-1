@@ -12,6 +12,6 @@ use yii\helpers\Url;
       <?=$task->description?>
     </p>
     <b class="new-task__price new-task__price--<?=$task->category->icon?>"><?=$task->price?><b> ₽</b></b>
-    <p class="new-task__place"><?=$task->city->name?></p>
+    <p class="new-task__place"><?=$task->address->name?></p>
     <span class="new-task__time"><?= Yii::$app->formatter->asDate($task->created_at, 'php:d.m.Y H:i');?></span>
 </div>

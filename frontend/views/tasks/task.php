@@ -38,8 +38,8 @@ use yii\web\View;
               <div id="map" style="width: 361px; height: 292px"></div>
             </div>
             <div class="content-view__address">
-              <span class="address__town"><?=$task->city->name?></span><br>
-              <span><?=$task->address->name?></span>
+              <span class="address__town"><?=$task->city->name ?? ''?></span><br>
+              <span><?=$task->address->name ?? ''?></span>
             </div>
           </div>
         </div>
@@ -101,8 +101,6 @@ use yii\web\View;
 <section class="modal form-modal refusal-form" id="refusal-form">
   <?= $this->render('modals/refuse_modal', ['task_id' => $task->id]); ?>
 </section>
-<div class="overlay"></div>
-<script src="/js/main.js"></script>
 <script src="/js/moment.js"></script>
 <script src="/js/messenger.js"></script>
 
@@ -112,13 +110,13 @@ $this->registerJs(
       function init(){
           // Создание карты.
           var myMap = new ymaps.Map('map', {
-              center: [".$task->address->lat.", ".$task->address->long."],
+              center: [".($task->address->lat ?? 0).", ".($task->address->long ?? 0)."],
               zoom: 17
           });
           var myPlacemark = new ymaps.GeoObject({
               geometry: {
                   type: \"Point\",
-                  coordinates: [".$task->address->lat.", ".$task->address->long."]
+                  coordinates: [".($task->address->lat ?? 0).", ".($task->address->long ?? 0)."]
               }
           });
       }

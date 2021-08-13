@@ -53,6 +53,6 @@ class ActionList extends \yii\db\ActiveRecord
      */
     public function getTaskActions()
     {
-        return $this->hasMany(TaskActions::className(), ['action_id' => 'id']);
+        return $this->hasMany(TaskAction::className(), ['action_id' => 'id']);
     }
 }

@@ -58,6 +58,7 @@ class UsersController extends SecuredController
 				$query->andWhere(['like', 'name', $filter['sQuery']]);
 			}
         }
+
         $pages = new Pagination(['totalCount' => $query->count()]);
         $users = $query->offset($pages->offset)
         ->limit($pages->limit)->all();
@@ -79,7 +80,8 @@ class UsersController extends SecuredController
         return $this->render('user', ['user' => $user, 'reviews' => $reviews]);
     }
 
-    public function actionBookmark() {
+    public function actionBookmark() 
+    {
     	if (Yii::$app->request->get()) {
     		if ($favUser = Favourite::find()->where(['user_added' => \Yii::$app->user->identity->id])->andWhere(['user_favourite' => Yii::$app->request->get()['id']])->one()) {
     			if ($favUser->delete()) {

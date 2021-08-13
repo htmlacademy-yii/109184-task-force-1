@@ -17,6 +17,7 @@ use frontend\models\City as City;
 use frontend\models\Notification as Notification;
 use yii\web\UploadedFile;
 use yii\data\Pagination;
+use yii\caching\TagDependency;
 
 /**
  * Tasks controller
@@ -39,12 +40,14 @@ class TasksController extends SecuredController
 
         $filter = Yii::$app->request->get() ? Yii::$app->request->get() : Yii::$app->request->post();
         
-    	if ($filter) {
+        if (\Yii::$app->user->identity->city_id != 0) {
+            $query->where(['tasks.city_id' => \Yii::$app->user->identity->city_id]);
+        }
+        
+        if ($filter) {
 
-        	if (isset($filter['city'])) {
-				$query->andWhere(['tasks.city_id' => $filter['city']]);
-        	} else {
-                $query->andWhere(['tasks.city_id' => \Yii::$app->user->identity->city_id]);
+            if (isset($filter['city'])) {
+                $query->where(['tasks.city_id' => $filter['city']]);
             }
 
             if (isset($filter['category'])) {
@@ -94,7 +97,7 @@ class TasksController extends SecuredController
             throw new NotFoundHttpException("Задание с ID $id не найден");
         }
 
-        return $this->render('task', ['task' => $task, 'responds' => $responds, 'responseForm' => $responseForm, 'requestForm' => $requestForm, 'refuseForm' => $refuseForm, 'images' => $galleryImages]);
+        return $this->render('task', compact('tasks', 'responds', 'responseForm', 'requestForm', 'refuseForm'));
     }
 
     public function actionCreate()
@@ -122,16 +125,18 @@ class TasksController extends SecuredController
 
             $city = City::find()->where(['name' => $fields['city']])->one();
 
-            if(!$city) {
-              $city = new City();
-              $city->name = $fields['city'];
-              $city->lat = 0;
-              $city->long = 0;
-              $city->save();
+            if (!$city) {
+                $city = new City();
+                $city->name = $fields['city'];
+                $position = explode(" ", $fields['position']);
+                $city->lat = $position[1];
+                $city->long = $position[0];
+                $city->save();
             }
-            
+
             $address = Address::find()->where(['name' => $fields['Task']['addressText']])->one();
-            if(!$address) {
+           
+            if (!$address) {
                 $address = new Address();
                 $address->name = $fields['Task']['addressText'];
                 $position = explode(" ", $fields['position']);
@@ -167,7 +172,8 @@ class TasksController extends SecuredController
         return $this->render('create', compact('model', 'errors'));
     }
 
-    public function actionRefuse($id = false) {
+    public function actionRefuse($id = false) 
+    {
         $taskID = '';
 
         if (\Yii::$app->user->identity->role_id == 4) {
@@ -196,7 +202,8 @@ class TasksController extends SecuredController
         return $this->redirect(['task/view/' . $task->id]);
     }
 
-    public function actionAccept($id) {
+    public function actionAccept($id) 
+    {
         $respond = Respond::findOne($id);
 
         $respond->is_accepted = 1;
@@ -208,10 +215,12 @@ class TasksController extends SecuredController
 
         (new Notification())->setNotification(['type' => 4, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
         (new Notification())->setNotification(['type' => 6, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
+
         return $this->redirect(['task/view/' . $task->id]);
     }
 
-    public function actionRespond() {
+    public function actionRespond() 
+    {
         $respond = new Respond();
 
         if (\Yii::$app->request->post()) {
@@ -232,7 +241,8 @@ class TasksController extends SecuredController
         return $this->redirect(['task/view/' . $respond->task_id]);
     }
 
-    public function actionRequest() {
+    public function actionRequest() 
+    {
         if (\Yii::$app->request->post()) {
             $fields = \Yii::$app->request->post();
             $task_id = $fields['task_id'];
