@@ -7,11 +7,9 @@ use yii\db\Query;
 use yii\web\NotFoundHttpException;
 use frontend\models\User as User;
 use frontend\models\Gallery as Gallery;
-use frontend\models\Address as Address;
 use frontend\models\City as City;
 use frontend\models\Category as Category;
 use frontend\models\CategoryUsers as CategoryUsers;
-use frontend\models\AccountForm as AccountForm;
 use yii\web\UploadedFile;
 
 /**
@@ -25,7 +23,6 @@ class AccountController extends SecuredController
         $model = User::find()->select(['id', 'email', 'name', 'birthdate', 'city_id', 'about', 'phone', 'telegram', 'skype', 'avatar', 'specifications'])->where([
              'id' => \Yii::$app->user->identity->id,
         ])->one();
-        // $model = User::findOne(\Yii::$app->user->identity->id);
 
         $categories = Category::find()->all();
         
@@ -45,7 +42,6 @@ class AccountController extends SecuredController
                     }
                 }
 
-
                 $model->email = $fields['User']['email'];
                 $model->birthdate = strtotime($fields['User']['birthdate']);
                 $model->city_id = $fields['User']['city_id'];
@@ -53,7 +49,6 @@ class AccountController extends SecuredController
                 $model->phone = $fields['User']['phone'];
                 $model->telegram = $fields['User']['telegram'];
                 $model->skype = $fields['User']['skype'];
-                $model->specifications = implode(',', $fields['categories']);
                 $model->show_contacts = $fields['show_contacts'] ?? 0;
                 $model->show_profile = $fields['show_profile'] ?? 0;
                 $model->new_message = $fields['new_message'] ?? 0;
@@ -71,8 +66,10 @@ class AccountController extends SecuredController
                         }
                     }
 
+                    $model->avatarUpload = '';
+
                     $model->portfolioUpload = UploadedFile::getInstances($model, 'portfolioUpload');
-                    // var_dump($model->portfolioUpload) ;
+                    
                     if ($model->portfolioUpload) {
                         foreach ($model->portfolioUpload as $file) {
                             $galleryFile = new Gallery();

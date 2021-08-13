@@ -7,14 +7,6 @@ use yii\db\Query;
 use yii\web\NotFoundHttpException;
 use frontend\models\Task as Task;
 use frontend\models\Respond as Respond;
-use frontend\models\TaskFilterForm as TaskFilterForm;
-use frontend\models\ResponseForm as ResponseForm;
-use frontend\models\RequestForm as RequestForm;
-use frontend\models\RefuseForm as RefuseForm;
-use frontend\models\Gallery as Gallery;
-use frontend\models\Address as Address;
-use frontend\models\City as City;
-use yii\web\UploadedFile;
 
 /**
  * My Tasks controller

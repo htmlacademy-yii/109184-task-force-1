@@ -186,9 +186,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getMessages()
+    public function getMessagesTo()
     {
-        return $this->hasMany(Messages::className(), ['user_from' => 'id']);
+        return $this->hasMany(Message::className(), ['user_from' => 'id']);
     }
 
     /**
@@ -196,9 +196,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getMessages0()
+    public function getMessagesFrom()
     {
-        return $this->hasMany(Messages::className(), ['user_to' => 'id']);
+        return $this->hasMany(Message::className(), ['user_to' => 'id']);
     }
 
     /**
@@ -230,9 +230,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getReviews0()
+    public function getReviewsReciever()
     {
-        return $this->hasMany(Reviews::className(), ['user_reciever' => 'id']);
+        return $this->hasMany(Review::className(), ['user_reciever' => 'id']);
     }
 
     /**

@@ -10,6 +10,15 @@ use frontend\models\City;
     <div class="registration-wrapper">
       <?php $form = ActiveForm::begin(['id' => 'signup-form', 'options' => ['class' => 'registration__user-form form-create', 'name' => 'signup']]); ?>
         <div class="field-container">
+          <?= $form->field($model, 'role_id')->dropdownList(
+              [
+                  '3' => 'Исполнитель',
+                  '4' => 'Заказчик'
+              ],
+              ['class' => 'input textarea width100 mb-0']
+          )->label('Кто я?');?>
+        </div>
+        <div class="field-container">
           <?= $form->field($model, 'email')->textInput(['class' => 'input textarea width100 mb-0'])->label('Электронная почта'); ?>
         </div>
         <div class="field-container">
@@ -18,7 +27,7 @@ use frontend\models\City;
         <div class="field-container">
           <?= $form->field($model, 'city_id')->dropdownList(
               City::find()->select(['name', 'id'])->indexBy('id')->column(),
-              ['prompt'=>'Выберите город', 'class' => 'multiple-select input town-select registration-town width100 mb-0']
+              ['prompt'=>'Выберите город', 'class' => 'multiple-select input registration-town width100 mb-0']
           )->label('Город проживания');?>
         </div>
         <div class="field-container">
@@ -34,5 +43,3 @@ use frontend\models\City;
     <?php echo $this->render('../site/login-modal', ['model' => $model]); ?>
     <button class="form-modal-close" type="button">Закрыть</button>
 </section>
-<div class="overlay"></div>
-<script src="js/main.js"></script>

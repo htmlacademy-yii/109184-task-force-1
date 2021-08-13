@@ -56,7 +56,7 @@ class Address extends \yii\db\ActiveRecord
      */
     public function getTasks()
     {
-        return $this->hasMany(Tasks::className(), ['address_id' => 'id']);
+        return $this->hasMany(Task::className(), ['address_id' => 'id']);
     }
 
      /**

@@ -53,6 +53,6 @@ class WorkType extends \yii\db\ActiveRecord
      */
     public function getTasks()
     {
-        return $this->hasMany(Tasks::className(), ['work_type_id' => 'id']);
+        return $this->hasMany(Task::className(), ['work_type_id' => 'id']);
     }
 }

@@ -32,6 +32,58 @@ use yii\web\UploadedFile;
  */
 class Task extends \yii\db\ActiveRecord
 {
+    const STATUS_NEW = 'new'; // Новое
+    const STATUS_CANCELED = 'canceled'; // Отменено
+    const STATUS_INWORK = 'inwork'; // В работе
+    const STATUS_COMPLETE = 'complete'; // Выполнено
+    const STATUS_FAILED = 'failed'; // Провалено
+
+    const ACTION_PUBLISH = 'publish';
+    const ACTION_CANCEL = 'cancel';
+    const ACTION_CHOOSE = 'choose';
+    const ACTION_MARK_DONE = 'request';
+    const ACTION_REFUSE = 'refusal';
+    const ACTION_RESPOND = 'respond';
+    const ACTION_WRITE_MESSAGE = 'write_message';
+
+    private $status = [];
+    private $actions = [];
+
+    private $actionsList = [
+        'publish' => 'Опубликовать задание',
+        'cancel' => 'Отменить задание',
+        'choose' => 'Выбрать исполнителя',
+        'request' => 'Завершить',
+        'refusal' => 'Отказаться',
+        'respond' => 'Откликнуться',
+    ];
+
+    public $statusesList = [
+        'new' => 'Новое',
+        'canceled' => 'Отменено',
+        'inwork' => 'На исполнении',
+        'complete' => 'Завершено',
+        'failed' => 'Провалено',
+    ];
+
+    private $actionStatusList = [
+        self::ACTION_PUBLISH => self::STATUS_NEW,
+        self::ACTION_CANCEL => self::STATUS_CANCELED,
+        self::ACTION_CHOOSE => self::STATUS_INWORK,
+        self::ACTION_MARK_DONE => self::STATUS_COMPLETE,
+        self::ACTION_REFUSE => self::STATUS_FAILED,
+    ];
+
+    private $actionStatusListByRole = [
+        'executant' => [
+            self::STATUS_NEW => [self::ACTION_RESPOND],
+            self::STATUS_INWORK => [self::ACTION_REFUSE],
+        ],
+        'customer' => [
+            self::STATUS_INWORK => [self::ACTION_MARK_DONE],
+        ],
+    ];
+
     public $filesUpload;
     public $addressText;
     public $position;
@@ -134,7 +186,7 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getTaskActions()
     {
-        return $this->hasMany(TaskActions::className(), ['task_id' => 'id']);
+        return $this->hasMany(TaskAction::className(), ['task_id' => 'id']);
     }
 
     /**
@@ -164,7 +216,7 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getWorkType()
     {
-        return $this->hasOne(WorkTypes::className(), ['id' => 'work_type_id']);
+        return $this->hasOne(WorkType::className(), ['id' => 'work_type_id']);
     }
 
     /**
@@ -197,60 +249,8 @@ class Task extends \yii\db\ActiveRecord
     }
 
     public function getExecutant() {
-        return Respond::find()->andWhere(['is_accepted' => '1'])->one();
+        return Respond::find()->andWhere(['task_id' => $this->id])->andWhere(['is_accepted' => '1'])->one();
     }
-
-    const STATUS_NEW = 'new'; // Новое
-    const STATUS_CANCELED = 'canceled'; // Отменено
-    const STATUS_INWORK = 'inwork'; // В работе
-    const STATUS_COMPLETE = 'complete'; // Выполнено
-    const STATUS_FAILED = 'failed'; // Провалено
-
-    const ACTION_PUBLISH = 'publish';
-    const ACTION_CANCEL = 'cancel';
-    const ACTION_CHOOSE = 'choose';
-    const ACTION_MARK_DONE = 'request';
-    const ACTION_REFUSE = 'refusal';
-    const ACTION_RESPOND = 'respond';
-    const ACTION_WRITE_MESSAGE = 'write_message';
-
-    private $status = [];
-    private $actions = [];
-
-    private $actionsList = [
-        'publish' => 'Опубликовать задание',
-        'cancel' => 'Отменить задание',
-        'choose' => 'Выбрать исполнителя',
-        'request' => 'Завершить',
-        'refusal' => 'Отказаться',
-        'respond' => 'Откликнуться',
-    ];
-
-    public $statusesList = [
-        'new' => 'Новое',
-        'canceled' => 'Отменено',
-        'inwork' => 'На исполнении',
-        'complete' => 'Завершено',
-        'failed' => 'Провалено',
-    ];
-
-    private $actionStatusList = [
-        self::ACTION_PUBLISH => self::STATUS_NEW,
-        self::ACTION_CANCEL => self::STATUS_CANCELED,
-        self::ACTION_CHOOSE => self::STATUS_INWORK,
-        self::ACTION_MARK_DONE => self::STATUS_COMPLETE,
-        self::ACTION_REFUSE => self::STATUS_FAILED,
-    ];
-
-    private $actionStatusListByRole = [
-        'executant' => [
-            self::STATUS_NEW => [self::ACTION_RESPOND],
-            self::STATUS_INWORK => [self::ACTION_REFUSE],
-        ],
-        'customer' => [
-            self::STATUS_INWORK => [self::ACTION_MARK_DONE],
-        ],
-    ];
 
     public function getAvailableActionsByStatus($status, $role)
     {

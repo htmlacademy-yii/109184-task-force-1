@@ -96,11 +96,10 @@ AppAsset::register($this);
         </div>
     </footer>
 </div>
-
+<div class="overlay"></div>
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
 <script src="/js/main.js"></script>
 <script src="/js/lightbulb.js"></script>
-
 <?php $this->endBody() ?>
 </body>
 </html>

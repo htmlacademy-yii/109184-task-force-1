@@ -8,7 +8,7 @@ use yii\helpers\Url;?>
         <img src="<?= $user->avatar || $user->avatar != "" ? $user->avatar : '/img/no-photo.png'?>" width="120" height="120" alt="Аватар пользователя">
         <div class="content-view__headline">
           <h1><?= $user->login?></h1>
-          <p>Россия, <?= $user->city->name?></p>
+          <p>Россия, <?= $user->city->name ?? ''?></p>
           <div class="profile-mini__name five-stars__rate">
             <?php if ($user->rating) { ?>
               <?php for ($i = 0; $i < $user->rating; $i++) { ?>
@@ -22,7 +22,7 @@ use yii\helpers\Url;?>
             <?php } ?>
             <b><?= $user->rating ?? 0 ?></b>
           </div>
-          <b class="done-task">Выполнил 5 заказов</b><b class="done-review">Получил <?= count($reviews)?> отзывов</b>
+          <b class="done-task">Выполнил <?= count($user->respond) ?? 0 ?> заказов</b><b class="done-review">Получил <?= count($reviews)?> отзывов</b>
         </div>
         <div class="content-view__headline user__card-bookmark <?= ($user->favouriteMe) ? 'user__card-bookmark--current' : '' ?>">
           <span><?= ($user->last_online < 60*60*24*365) ? Yii::$app->formatter->asRelativeTime($user->last_online) : Yii::$app->formatter->asDate($user->last_online);?></span>

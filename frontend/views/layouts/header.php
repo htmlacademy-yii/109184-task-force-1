@@ -58,7 +58,7 @@ use frontend\models\City as City;
                     <?php 
                         $cityListIds = [1109, 1110, 465, 803, 274, 165, 667];
 
-                        if (Yii::$app->request->get()['city'] && !in_array(Yii::$app->request->get()['city'], $cityListIds)) {
+                        if (isset(Yii::$app->request->get()['city']) && !in_array(Yii::$app->request->get()['city'], $cityListIds)) {
                             array_push($cityListIds, Yii::$app->request->get()['city']);
                         }
                         $cities = City::find()
@@ -70,7 +70,7 @@ use frontend\models\City as City;
                             ->all();
                     ?>
                     <?php foreach ($cities as $city) { ?>
-                        <option value="<?= $city['id'] ?>" <?= (Yii::$app->request->get()['city'] == $city['id']) ? 'selected' : ((empty(Yii::$app->request->get()) && $city['id'] == Yii::$app->user->identity->city_id) ? 'selected' : '') ?>><?= $city['name'] ?></option>
+                        <option value="<?= $city['id'] ?>" <?= (isset(Yii::$app->request->get()['city']) == $city['id']) ? 'selected' : ((empty(Yii::$app->request->get()) && $city['id'] == Yii::$app->user->identity->city_id) ? 'selected' : '') ?>><?= $city['name'] ?></option>
                     <?php }?>
                     <option value="0">Выбрать другой...</option>
                 </select>
