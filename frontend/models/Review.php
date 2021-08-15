@@ -87,4 +87,17 @@ class Review extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Task::className(), ['id' => 'task_id']);
     }
+
+    public function createReview($fields)
+    {
+        $review->task_id = $fields['task_id'];
+        $review->user_created = \Yii::$app->user->identity->id;
+        $review->text = $fields['RequestForm']['task_id'];
+
+        $userExecutant = Respond::find()->where(['task_id' => $fields['task_id']])->where(['status' => 1])->one();
+        $review->user_reciever = $userExecutant->user_id;
+        $review->rate = $fields['rating'];
+        $review->created_at = strtotime('now');
+        $review->save();
+    }
 }

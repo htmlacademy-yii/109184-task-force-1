@@ -13,6 +13,9 @@ use frontend\models\Respond as Respond;
  */
 class MytasksController extends SecuredController
 {
+    /**
+      * Обработчик получения заданий
+    */
     public function actionIndex()
     {
         $query = Task::find()->join('LEFT JOIN', 'responds', 'tasks.id = responds.task_id');

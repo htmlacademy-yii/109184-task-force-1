@@ -59,4 +59,22 @@ class Auth extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
+
+    /**
+      * Добавление записи о логине
+      * @param array $args
+    */
+    public function addAuth($args)
+    {
+        if (!empty($args)) {
+            $this->user_id = $args['user_id'];
+            $this->source = $args['source'];
+            $this->source_id = $args['source_id'];
+            if ($this->save()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

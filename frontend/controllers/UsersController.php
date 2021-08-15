@@ -16,6 +16,9 @@ use yii\data\Pagination;
  */
 class UsersController extends SecuredController
 {
+	/**
+      * Получение списка пользователей
+    */
     public function actionIndex()
     {
     	$query = User::find();
@@ -66,6 +69,10 @@ class UsersController extends SecuredController
         return $this->render('users', ['users' => $users, 'model' => $taskForm, 'filter' => $filter, 'pages' => $pages]);
     }
 
+	/**
+      * Просмотр пользователя
+      * @param int $id
+    */
     public function actionView($id)
     {
         $user = User::find()->where(['users.id' => $id])
@@ -80,6 +87,9 @@ class UsersController extends SecuredController
         return $this->render('user', ['user' => $user, 'reviews' => $reviews]);
     }
 
+    /**
+      * Добавление пользователя в избранное
+    */
     public function actionBookmark() 
     {
     	if (Yii::$app->request->get()) {
@@ -88,12 +98,15 @@ class UsersController extends SecuredController
 	    			return true;
 	    		}
     		} else {
+    			$args = [
+	    			'user_added' => \Yii::$app->user->identity->id,
+	    			'user_favourite' => Yii::$app->request->get()['id'],
+	    			'created_at' => time()
+	    		];
+	    		
 	    		$favUser = new Favourite();
-	    		$favUser->user_added = \Yii::$app->user->identity->id; 
-	    		$favUser->user_favourite = Yii::$app->request->get()['id']; 
-	    		$favUser->created_at = time(); 
-
-	    		if ($favUser->save()) {
+	    		
+	    		if ($favUser->createFavourite($args)) {
 	    			return true;
 	    		}
     		}

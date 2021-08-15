@@ -12,6 +12,9 @@ use frontend\models\Notification as Notification;
  */
 class EventsController extends SecuredController
 {
+    /**
+      * Обработчик получения событий
+    */
     public function actionIndex()
     {
         $notifications = Notification::find()->select('notifications.*, tasks.title')

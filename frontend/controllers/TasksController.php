@@ -24,6 +24,9 @@ use yii\caching\TagDependency;
  */
 class TasksController extends SecuredController
 {
+    /**
+      * Обработчик вызова всех заданий со статусом NEW
+    */
     public function actionIndex()
     {
     	$query = Task::find();
@@ -83,6 +86,10 @@ class TasksController extends SecuredController
         return $this->render('tasks', compact('tasks', 'model', 'filter', 'pages'));
     }
 
+    /**
+      * Обработчик просмотра задания
+      * @param int $id
+    */
     public function actionView($id)
     {
     	$task = Task::findOne($id);
@@ -100,6 +107,9 @@ class TasksController extends SecuredController
         return $this->render('task', compact('tasks', 'responds', 'responseForm', 'requestForm', 'refuseForm'));
     }
 
+    /**
+      * Обработчик создания задания
+    */
     public function actionCreate()
     {
         if (\Yii::$app->user->identity->role_id != 4) {
@@ -108,70 +118,23 @@ class TasksController extends SecuredController
 
         $model = new Task();
         
-        $model->load(\Yii::$app->request->post());
-        $fields = \Yii::$app->request->post();
-        
-        if ($model->validate()) {
-            $model->title = $fields['Task']['title'];
-            $model->description = $fields['Task']['description'];
-            $model->category_id = $fields['Task']['category_id'];
-            $model->price = $fields['Task']['price'];
-            $model->expire_date = strtotime($fields['Task']['expire_date']);
-            $model->status = 1;
-            $model->user_created = \Yii::$app->user->identity->id;
-            $model->created_at = strtotime('now');
+        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+            $fields = \Yii::$app->request->post();
 
-            $model->filesUpload = UploadedFile::getInstances($model, 'filesUpload');
-
-            $city = City::find()->where(['name' => $fields['city']])->one();
-
-            if (!$city) {
-                $city = new City();
-                $city->name = $fields['city'];
-                $position = explode(" ", $fields['position']);
-                $city->lat = $position[1];
-                $city->long = $position[0];
-                $city->save();
-            }
-
-            $address = Address::find()->where(['name' => $fields['Task']['addressText']])->one();
-           
-            if (!$address) {
-                $address = new Address();
-                $address->name = $fields['Task']['addressText'];
-                $position = explode(" ", $fields['position']);
-                $address->city_id = $city->id;
-                $address->lat = $position[1];
-                $address->long = $position[0];
-                $address->save();
-            }
-
-            $model->city_id = $city->id;
-            $model->address_id = $address->id;
-
-            if ($model->save()) {
-                if ($model->filesUpload) {
-                    foreach ($model->filesUpload as $file) {
-                        $galleryFile = new Gallery();
-                        $galleryFile->post_id = $model->id;
-                        $galleryFile->post_type = 'task';
-                        $galleryFile->link = '/uploads/' . $file->baseName . '.' . $file->extension;
-                        $galleryFile->user_id = \Yii::$app->user->identity->id;
-                        $galleryFile->created_at = strtotime('now');
-                        $galleryFile->save();
-                        $file->saveAs('uploads/' . $file->baseName . '.' . $file->extension);
-                    }
-                }
-
+            if ($model->createTask($fields)) {
                 return $this->goHome();
             }
-        } 
+        }
     
         $errors = $model->getErrors();
         
         return $this->render('create', compact('model', 'errors'));
     }
 
+    /**
+      * Обработчик отказа от задания (если исполнитель, то задание провалено; если заказчик, то заявка исполнителя отклонена)
+      * @param int $id
+    */
     public function actionRefuse($id = false) 
     {
         $taskID = '';
@@ -179,9 +142,7 @@ class TasksController extends SecuredController
         if (\Yii::$app->user->identity->role_id == 4) {
             if ($id) {
                 $respond = Respond::findOne($id);
-
-                $respond->is_accepted = 0;
-                $respond->save();
+                $respond->updateStatus(0);
 
                 $task = Task::findOne($respond->task_id);
             }
@@ -191,8 +152,7 @@ class TasksController extends SecuredController
                 $taskID = $fields['task_id'];
 
                 $task = Task::findOne($taskID);
-                $task->status = 6; // Провалено
-                $task->save();
+                $task->updateStatus(6); // Провалено
 
                 (new Notification())->setNotification(['type' => 3, 'task_id' => $taskID, 'user_id' => \Yii::$app->user->identity->id ]);
 
@@ -202,16 +162,17 @@ class TasksController extends SecuredController
         return $this->redirect(['task/view/' . $task->id]);
     }
 
+    /**
+      * Обработчик принятия задания от заказчика
+      * @param int $id
+    */
     public function actionAccept($id) 
     {
         $respond = Respond::findOne($id);
-
-        $respond->is_accepted = 1;
-        $respond->save();
+        $respond->updateStatus(1);
 
         $task = Task::findOne($respond->task_id);
-        $task->status = 2; // В работе
-        $task->save();
+        $task->updateStatus(2); // в работе
 
         (new Notification())->setNotification(['type' => 4, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
         (new Notification())->setNotification(['type' => 6, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
@@ -219,21 +180,18 @@ class TasksController extends SecuredController
         return $this->redirect(['task/view/' . $task->id]);
     }
 
+    /**
+      * Обработчик отклика на задание исполнителем
+    */
     public function actionRespond() 
     {
         $respond = new Respond();
 
-        if (\Yii::$app->request->post()) {
+        if ($respond->validate() && \Yii::$app->request->post()) {
             $fields = \Yii::$app->request->post();
-            if ($respond->validate()) {
-                $respond->task_id = $fields['task_id'];
-                $respond->user_id = \Yii::$app->user->identity->id;
-                $respond->price = $fields['ResponseForm']['price'];
-                $respond->comment = $fields['ResponseForm']['comment'];
-                $respond->created_at = strtotime('now');
-                $respond->is_accepted = null;
-                $respond->save();
 
+            $respond = new Respond();
+            if ($respond->createRespond($fields)) {
                 (new Notification())->setNotification(['type' => 1, 'task_id' => $fields['task_id'], 'user_id' => \Yii::$app->user->identity->id ]);
             }
         }
@@ -241,6 +199,9 @@ class TasksController extends SecuredController
         return $this->redirect(['task/view/' . $respond->task_id]);
     }
 
+    /**
+      * Обработчик завершения задания заказчиком + создание отзыва исполнителю
+    */
     public function actionRequest() 
     {
         if (\Yii::$app->request->post()) {
@@ -248,19 +209,10 @@ class TasksController extends SecuredController
             $task_id = $fields['task_id'];
 
             $task = Task::findOne($task_id);
-            $task->status = 5; // Завершено
-            $task->save();
+            $task->updateStatus(5); // Завершено
 
             $review = new Review();
-            $review->task_id = $task->id;
-            $review->user_created = \Yii::$app->user->identity->id;
-            $review->text = $fields['RequestForm']['task_id'];
-
-            $userExecutant = Respond::find()->where(['task_id' => $task->id])->where(['status' => 1])->one();
-            $review->user_reciever = $userExecutant->user_id;
-            $review->rate = $fields['rating'];
-            $review->created_at = strtotime('now');
-            $review->save();
+            $review->createReview($fields);
 
             (new Notification())->setNotification(['type' => 5, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
         }

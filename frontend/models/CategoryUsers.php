@@ -55,12 +55,23 @@ class CategoryUsers extends \yii\db\ActiveRecord
     }
 
       /**
-     * Gets query for [[User]].
+     * Gets query for [[Category]].
      *
      * @return \yii\db\ActiveQuery
      */
     public function getCategory()
     {
         return $this->hasMany(Category::className(), ['category_id' => 'id']);
+    }
+
+    /**
+      * Обработчик добавления категории к пользователю
+      * @param int $id
+    */
+    public function addCategory($category)
+    {
+        $this->category_id = $category;
+        $this->user_id = \Yii::$app->user->identity->id;
+        $this->save();
     }
 }

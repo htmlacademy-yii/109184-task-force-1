@@ -9,6 +9,7 @@ use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use frontend\assets\AppAsset;
 use common\widgets\Alert;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 ?>
@@ -52,19 +53,19 @@ AppAsset::register($this);
             <div class="page-footer__links">
                 <ul class="links__list">
                     <li class="links__item">
-                        <a href="/tasks">Задания</a>
+                        <a href="<?= Url::to(['/tasks']);?>">Задания</a>
                     </li>
                     <li class="links__item">
-                        <a href="/account">Мой профиль</a>
+                        <a href="<?= Url::to(['/account']);?>">Мой профиль</a>
                     </li>
                     <li class="links__item">
-                        <a href="/users">Исполнители</a>
+                        <a href="<?= Url::to(['/users']);?>">Исполнители</a>
                     </li>
                     <li class="links__item">
-                        <a href="/signup">Регистрация</a>
+                        <a href="<?= Url::to(['/signup']);?>">Регистрация</a>
                     </li>
                     <li class="links__item">
-                        <a href="/tasks/create">Создать задание</a>
+                        <a href="<?= Url::to(['/tasks/create']);?>">Создать задание</a>
                     </li>
                     <li class="links__item">
                         <a href="">Справка</a>
