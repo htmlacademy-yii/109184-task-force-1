@@ -24,11 +24,16 @@ class AccountController extends SecuredController
     {
         UploadedFile::reset();
         
-        $model = User::find()->select(['id', 'email', 'name', 'birthdate', 'city_id', 'about', 'phone', 'telegram', 'skype', 'avatar', 'specifications'])->where([
+        $model = User::find()->select(['id', 'email', 'name', 'birthdate', 'city_id', 'about', 'phone', 'telegram', 'skype', 'avatar'])->where([
              'id' => \Yii::$app->user->identity->id,
-        ])->one();
+        ])->with('category')->one();
 
         $categories = Category::find()->all();
+
+        $userCategories = [];
+        foreach ($model->category as $category) {
+            $userCategories[] = $category['id'];
+        }
         
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
             $fields = \Yii::$app->request->post();
@@ -37,6 +42,7 @@ class AccountController extends SecuredController
                 $model->role_id = 4;
             } else {
                 $model->role_id = 3;
+
                 foreach($fields['categories'] as $category) {
                     $catUser = new CategoryUsers();
                     $catUser->addCategory($category);
@@ -46,7 +52,7 @@ class AccountController extends SecuredController
             $model->updateAccount($fields);
         }
 
-        return $this->render('index', compact('model', 'categories'));
+        return $this->render('index', compact('model', 'categories', 'userCategories'));
     }
 
     /**

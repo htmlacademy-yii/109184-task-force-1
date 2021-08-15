@@ -54,7 +54,7 @@ use yii\jui\DatePicker;
             <?php foreach ($categories as $attr => $label): ?>
               <div>
                 <label class="checkbox__legend">
-                  <input class="visually-hidden checkbox__input" type="checkbox" name="categories[]" value="<?= $label->id ?>" <?= (in_array($label->id, explode(',', $model->specifications))) ? 'checked' : ''?>>
+                  <input class="visually-hidden checkbox__input" type="checkbox" name="categories[]" value="<?= $label->id ?>" <?= (in_array($label->id, $userCategories)) ? 'checked' : ''?>>
                   <span><?= $label->name ?></span>
                 </label>
               </div>

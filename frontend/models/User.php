@@ -4,6 +4,7 @@ namespace frontend\models;
 
 use Yii;
 use yii\web\IdentityInterface;
+use yii\web\UploadedFile;
 /**
  * This is the model class for table "users".
  *
@@ -116,6 +117,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             [['role_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserRole::className(), 'targetAttribute' => ['role_id' => 'id']],
             [['last_online'], 'default', 'value' => 0],
             [['about'], 'default', 'value' => ''],
+            [['source_id'], 'default', 'value' => ''],
             [['avatarUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg'],
             [['portfolioUpload'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 10, 'extensions' => 'png, jpg, jpeg'],
         ];
@@ -371,7 +373,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     {
         if ($this->avatarUpload = UploadedFile::getInstances($this, 'avatarUpload')) {
             foreach ($this->avatarUpload as $file) {
-                $model->avatar = '/uploads/' . $file->baseName . '.' . $file->extension;
+                $this->avatar = '/uploads/' . $file->baseName . '.' . $file->extension;
                 $file->saveAs('uploads/' . $file->baseName . '.' . $file->extension);
             }
         }
@@ -384,7 +386,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     */
     public function uploadPortfolio()
     {
-        if ($this->portfolioUpload = UploadedFile::getInstances($model, 'portfolioUpload')) {
+        if ($this->portfolioUpload = UploadedFile::getInstances($this, 'portfolioUpload')) {
             foreach ($this->portfolioUpload as $file) {
                 $galleryFile = new Gallery();
                 $galleryFile->post_type = 'portfolio';
