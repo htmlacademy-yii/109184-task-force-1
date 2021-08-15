@@ -78,4 +78,36 @@ class Respond extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Task::className(), ['id' => 'task_id']);
     }
+
+    /**
+      * Обработчик создания отклика
+      * @param array $fields
+    */
+    public function createRespond($fields) 
+    {
+        if (!empty($fields)) {
+            $this->task_id = $fields['task_id'];
+            $this->user_id = \Yii::$app->user->identity->id;
+            $this->price = $fields['ResponseForm']['price'];
+            $this->comment = $fields['ResponseForm']['comment'];
+            $this->created_at = strtotime('now');
+            $this->is_accepted = null;
+
+            if ($this->save()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+      * Обработчик обновления статуса отклика (принят или отклонен)
+      * @param int $status
+    */
+    public function updateStatus($status)
+    {
+        $this->is_accepted = $status;
+        $this->save();
+    }
 }

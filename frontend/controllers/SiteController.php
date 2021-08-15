@@ -80,6 +80,10 @@ class SiteController extends Controller
         ];
     }
 
+    /**
+      * Функция при удачном входу через сервис Вконтакте
+      * @param object $client
+    */
     public function onAuthSuccess($client)
     {
         $attributes = $client->getUserAttributes();
@@ -95,40 +99,41 @@ class SiteController extends Controller
                 $user = $auth->user;
                 Yii::$app->user->login($user);
             } else { // регистрация
-                if (isset($attributes['email']) && User::find()->where(['email' => $attributes['email']])->exists()) {
-                    Yii::$app->getSession()->setFlash('error', [
-                        Yii::t('app', "Пользователь с такой электронной почтой как в {client} уже существует, но с ним не связан. Для начала войдите на сайт использую электронную почту, для того, что бы связать её.", ['client' => $client->getTitle()]),
-                    ]);
-                } else {
-                    $password = Yii::$app->security->generateRandomString(6);
-                    $user = new User([
-                        'login' => $attributes['nickname'],
-                        'name' => $attributes['first_name'] . " " . $attributes['last_name'],
-                        'email' => $attributes['email'] ?? null,
-                        'password' => $password,
-                        'birthdate' => strtotime($attributes['bdate']),
-                        'avatar' => $attributes['photo'],
-                        'created_at' => time(),
-                        'source_id' => $attributes['id']
-                    ]);
-                    $user->generateAuthKey();
-                    $user->generatePasswordResetToken();
-                    $transaction = $user->getDb()->beginTransaction();
-                    if ($user->save()) {
-                        return Yii::$app->response->redirect(Url::to('/signup/choose'));
-                    } else {
-                        print_r($user->getErrors());
-                    }
-                }
+                $this->authOrRegister($attributes);
             }
         } else { // Пользователь уже зарегистрирован
             if (!$auth) { // добавляем внешний сервис аутентификации
-                $auth = new Auth([
+                $args = [
                     'user_id' => Yii::$app->user->id,
                     'source' => $client->getId(),
                     'source_id' => $attributes['id'],
-                ]);
-                $auth->save();
+                ];
+                $auth = new Auth();
+                $auth->addAuth($args);
+            }
+        }
+    }
+
+    /**
+      * Обработка входа или регистрации через сервис Вконтакте
+      * @param array $attributes
+    */
+    public function authOrRegister($attributes)
+    {
+        if (isset($attributes['email']) && User::find()->where(['email' => $attributes['email']])->exists()) {
+            Yii::$app->getSession()->setFlash('error', [
+                Yii::t('app', "Пользователь с такой электронной почтой как в {client} уже существует, но с ним не связан. Для начала войдите на сайт использую электронную почту, для того, что бы связать её.", ['client' => $client->getTitle()]),
+            ]);
+        } else {
+            $password = Yii::$app->security->generateRandomString(6);
+
+            $user = new User();
+            $user->createUser($attributes, $password);
+
+            if ($user->createUser($attributes, $password)) {
+                return Yii::$app->response->redirect(Url::to('/signup/choose'));
+            } else {
+                print_r($user->getErrors());
             }
         }
     }
@@ -143,11 +148,11 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) {
             $model = new LoginForm();
             $tasks = Task::find()
-            ->where(['tasks.status' => '1'])
-            ->with('category')
-            ->orderBy('created_at DESC')
-            ->limit(4)
-            ->all();
+                    ->where(['tasks.status' => '1'])
+                    ->with('category')
+                    ->orderBy('created_at DESC')
+                    ->limit(4)
+                    ->all();
             return $this->render('landing', compact('model', 'tasks'));
         } else {
             return Yii::$app->response->redirect(Url::to('/tasks'));
@@ -240,12 +245,13 @@ class SiteController extends Controller
         }
 
         if (\Yii::$app->request->post()) {
-            $auth = new Auth([
+            $args = [
                 'user_id' => $user->id,
                 'source' => $this->client->getId(),
                 'source_id' => (string)$attributes['id'],
-            ]);
-            if ($auth->save()) {
+            ];
+            $auth = new Auth();
+            if ($auth->addAuth($args)) {
                 Yii::$app->user->login($user);
                 return Yii::$app->response->redirect(Url::to('/tasks'));
             } else {

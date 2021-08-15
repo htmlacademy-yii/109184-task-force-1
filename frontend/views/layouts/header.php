@@ -5,6 +5,7 @@ use yii\widgets\ActiveField;
 use yii\jui\AutoComplete;
 use yii\web\JsExpression;
 use frontend\models\City as City;
+use yii\helpers\Url;
 ?>
 <?php if (!Yii::$app->user->isGuest) { ?>
     <header class="page-header">
@@ -40,16 +41,16 @@ use frontend\models\City as City;
             <div class="header__nav">
                 <ul class="header-nav__list site-list">
                     <li class="site-list__item">
-                        <a href="/tasks">Задания</a>
+                        <a href="<?= Url::to(['/tasks']);?>">Задания</a>
                     </li>
                     <li class="site-list__item">
-                        <a href="/users">Исполнители</a>
+                        <a href="<?= Url::to(['/users']);?>">Исполнители</a>
                     </li>
                     <li class="site-list__item">
-                        <a href="/tasks/create">Создать задание</a>
+                        <a href="<?= Url::to(['/tasks/create']);?>">Создать задание</a>
                     </li>
                     <li class="site-list__item">
-                        <a href="/account">Мой профиль</a>
+                        <a href="<?= Url::to(['/account']);?>">Мой профиль</a>
                     </li>
                 </ul>
             </div>
@@ -110,10 +111,10 @@ use frontend\models\City as City;
             <div class="account__pop-up">
                 <ul class="account__pop-up-list">
                     <li>
-                        <a href="/mytasks">Мои задания</a>
+                        <a href="<?= Url::to(['/mytasks']);?>">Мои задания</a>
                     </li>
                     <li>
-                        <a href="/account">Настройки</a>
+                        <a href="<?= Url::to(['/account']);?>">Настройки</a>
                     </li>
                     <li>
                         <?= Html::a("Выход", ['site/logout'], [
@@ -163,7 +164,7 @@ use frontend\models\City as City;
                   <a href="" class="header__account-enter open-modal" data-for="enter-form">
                       <span>Вход</span></a>
                   или
-                  <a href="/signup" class="header__account-registration">
+                  <a href="<?= Url::to(['/signup']);?>" class="header__account-registration">
                       Регистрация
                   </a>
               </div>

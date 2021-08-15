@@ -46,7 +46,7 @@ class Task extends \yii\db\ActiveRecord
     const ACTION_RESPOND = 'respond';
     const ACTION_WRITE_MESSAGE = 'write_message';
 
-    private $status = [];
+    private $statusTask = [];
     private $actions = [];
 
     private $actionsList = [
@@ -248,22 +248,38 @@ class Task extends \yii\db\ActiveRecord
         return $this->hasOne(TaskStatus::className(), ['id' => 'status']);
     }
 
+    /**
+      * Обработчик получения исполнителя задания
+    */
     public function getExecutant() {
         return Respond::find()->andWhere(['task_id' => $this->id])->andWhere(['is_accepted' => '1'])->one();
     }
 
-    public function getAvailableActionsByStatus($status, $role)
+    /**
+      * Обработчик получения доступных действий в зависимости от статуса задания
+      * @param int $statusTask
+      * @param int $role
+    */
+    public function getAvailableActionsByStatus($statusTask, $role)
     {
         $UserRole = UserRole::findOne($role);
-        $taskStatus = TaskStatus::findOne($status);
+        $taskStatus = TaskStatus::findOne($statusTask);
 
         return $this->actionStatusListByRole[$UserRole->role][$taskStatus->description] ?? [];
     }
 
-    public function getActionName($action) {
+    /**
+      * Обработчик получения имени действия по айди
+      * @param int $action
+    */
+    public function getActionName($action) 
+    {
         return $this->actionsList[$action];
     }
 
+    /**
+      * Проверка на существование отклика на задание от пользователя
+    */
     public function checkRespond() {
         if (Respond::find()->where(['task_id' => $this->id])->andWhere(['user_id' => \Yii::$app->user->identity->id])->one()) {
             return true;
@@ -272,7 +288,11 @@ class Task extends \yii\db\ActiveRecord
         return false;
     }
 
-    public function getDuration() {
+    /**
+      * Кастомизация длительности времени для пользователя (срок регистрации)
+    */
+    public function getDuration() 
+    {
         $mess = '';
         $userDate = new \DateTime(date('Y-m-d H:i:s', $this->user->created_at));
         $duration   = $userDate ->diff(new \DateTime('now'));
@@ -310,6 +330,87 @@ class Task extends \yii\db\ActiveRecord
         }
 
         return $mess ?? 'несколько минут';
+    }
+
+    /**
+      * Обработчик создания задания
+      * @param array $fields
+    */
+    public function createTask($fields) 
+    {
+        if (!empty($fields)) {
+            $this->title = $fields['Task']['title'];
+            $this->description = $fields['Task']['description'];
+            $this->category_id = $fields['Task']['category_id'];
+            $this->price = $fields['Task']['price'];
+            $this->expire_date = strtotime($fields['Task']['expire_date']);
+            
+            $this->user_created = \Yii::$app->user->identity->id;
+            $this->created_at = strtotime('now');
+
+            $city = City::find()->where(['name' => $fields['city']])->one();
+
+            if (!$city) {
+                $city = new City();
+                $city->name = $fields['city'];
+                $position = explode(" ", $fields['position']);
+                $city->lat = $position[1];
+                $city->long = $position[0];
+                $city->save();
+            }
+
+            $address = Address::find()->where(['name' => $fields['Task']['addressText']])->one();
+           
+            if (!$address) {
+                $address = new Address();
+                $address->name = $fields['Task']['addressText'];
+                $position = explode(" ", $fields['position']);
+                $address->city_id = $city->id;
+                $address->lat = $position[1];
+                $address->long = $position[0];
+                $address->save();
+            }
+
+            $this->city_id = $city->id;
+            $this->address_id = $address->id;
+            $this->status = 1;
+
+            if ($this->save()) {
+                $this->uploadGallery();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+      * Обработчик сохранения галереи для задания
+    */
+    public function uploadGallery()
+    {
+        if ($this->filesUpload = UploadedFile::getInstances($this, 'filesUpload')) {
+            foreach ($this->filesUpload as $file) {
+                $galleryFile = new Gallery();
+                $galleryFile->post_id = $this->id;
+                $galleryFile->post_type = 'task';
+                $galleryFile->link = '/uploads/' . $file->baseName . '.' . $file->extension;
+                $galleryFile->user_id = \Yii::$app->user->identity->id;
+                $galleryFile->created_at = strtotime('now');
+                $galleryFile->save();
+                $file->saveAs('uploads/' . $file->baseName . '.' . $file->extension);
+            }
+        }
+    }
+
+    /**
+      * Обработчик обновления статуса задания
+      * @param int $status
+    */
+    public function updateStatus($status)
+    {
+        $this->status = $status; // В работе
+        $this->save();
     }
 
 }

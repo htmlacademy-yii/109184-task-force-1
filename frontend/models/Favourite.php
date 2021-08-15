@@ -70,4 +70,23 @@ class Favourite extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'user_favourite']);
     }
+
+    /**
+      * Обработчик создания записи об избранном пользователе
+      * @param array $args
+    */
+    public function createFavourite($args)
+    {
+        if (!empty($args)) {
+            $this->user_added = $args['user_added'];
+            $this->user_favourite = $args['user_favourite'];
+            $this->created_at = $args['created_at'];
+
+            if ($this->save()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
