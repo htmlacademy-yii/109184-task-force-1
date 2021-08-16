@@ -5,7 +5,7 @@ use yii\helpers\Url;?>
   <section class="content-view">
     <div class="user__card-wrapper">
       <div class="user__card">
-        <img src="<?= $user->avatar || $user->avatar != "" ? $user->avatar : '/img/no-photo.png'?>" width="120" height="120" alt="Аватар пользователя">
+        <img src="<?= Url::to([$user->avatar || $user->avatar != "" ? $user->avatar : '/img/no-photo.png']);?>" width="120" height="120" alt="Аватар пользователя">
         <div class="content-view__headline">
           <h1><?= $user->login?></h1>
           <p>Россия, <?= $user->city->name ?? ''?></p>

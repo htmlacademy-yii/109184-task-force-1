@@ -29,56 +29,23 @@ class TasksController extends SecuredController
     */
     public function actionIndex()
     {
-    	$query = Task::find();
-
-    	$tasks = $query
-    	->where(['tasks.status' => '1'])
-    	->with('category')
-    	->with('city');
-
 		$model = new TaskFilterForm();
 		$model->getCategory();
 		$model->getWorkType();
 		$model->getPeriod();
 
+    	$query = Task::find()->where(['tasks.status' => '1'])
+                             ->with('category')
+                             ->with('city');
+
         $filter = Yii::$app->request->get() ? Yii::$app->request->get() : Yii::$app->request->post();
-        
+
         if (\Yii::$app->user->identity->city_id != 0) {
             $query->where(['tasks.city_id' => \Yii::$app->user->identity->city_id]);
         }
-        
-        if ($filter) {
 
-            if (isset($filter['city'])) {
-                $query->where(['tasks.city_id' => $filter['city']]);
-            }
+        $query = (new Task)->filterTasks($filter, $query);
 
-            if (isset($filter['category'])) {
-                $query->andWhere(['in', 'category_id', $filter['category']]);
-            } 
-
-        	if (isset($filter['work_type'])) {
-				$query->andWhere(['in', 'work_type_id', $filter['work_type']]);
-			}
-
-			if (!empty($filter['period'])) {
-				switch ($filter['period']) {
-					case 'day':
-							$query->andWhere('DATE(FROM_UNIXTIME(created_at)) = DATE(NOW())');
-						break;
-					case 'week':
-							$query->andWhere('WEEK(FROM_UNIXTIME(created_at)) = WEEK(NOW())');
-						break;
-					case 'month':
-							$query->andWhere('MONTH(FROM_UNIXTIME(created_at)) = MONTH(NOW())');
-						break;
-				}
-			}
-
-			if (!empty($filter['sQuery'])) {
-				$query->andWhere(['like', 'title', $filter['sQuery']]);
-			}
-        }
         $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 5]);
 
         $tasks = $query->offset($pages->offset)->limit($pages->limit)->all();
@@ -104,7 +71,7 @@ class TasksController extends SecuredController
             throw new NotFoundHttpException("Задание с ID $id не найден");
         }
 
-        return $this->render('task', compact('tasks', 'responds', 'responseForm', 'requestForm', 'refuseForm'));
+        return $this->render('task', compact('task', 'responds', 'responseForm', 'requestForm', 'refuseForm'));
     }
 
     /**

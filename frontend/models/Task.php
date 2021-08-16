@@ -413,4 +413,93 @@ class Task extends \yii\db\ActiveRecord
         $this->save();
     }
 
+    /**
+      * Обработчик фильтрации заданий со страницы "Мои задания"
+      * @param array $filter
+    */
+    public function filterMyTasks($filter)
+    {
+        $query = Task::find()->join('LEFT JOIN', 'responds', 'tasks.id = responds.task_id');
+
+        if ($filter) {
+            switch($filter['status']) {
+                case 'finished':
+                   $query->andWhere(['tasks.status' => '5']);
+                   $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                   $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                   $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'new':   
+                    $query->andWhere(['tasks.status' => '1']);
+                    $query->andWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                break;
+                case 'current': 
+                    $query->andWhere(['tasks.status' => '2']);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'canceled':
+                    $query->andWhere(['tasks.status' => '3'])->orWhere(['tasks.status' => '6']);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'expired':
+                    $query->andWhere(['<', 'tasks.expire_date', strtotime('now')]);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+            }
+        } else {
+            $query->andWhere(['tasks.status' => '1']);
+            $query->andWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+        }
+        
+        return $query;
+    }
+
+    /**
+      * Обработчик фильтрации заданий со страницы "Задания"
+      * @param array $filter
+      * @param object $query
+    */
+    public function filterTasks($filter, $query)
+    {
+        if ($filter) {
+
+            if (isset($filter['city'])) {
+                $query->where(['tasks.city_id' => $filter['city']]);
+            }
+
+            if (isset($filter['category'])) {
+                $query->andWhere(['in', 'category_id', $filter['category']]);
+            } 
+
+            if (isset($filter['work_type'])) {
+                $query->andWhere(['in', 'work_type_id', $filter['work_type']]);
+            }
+
+            if (!empty($filter['period'])) {
+                switch ($filter['period']) {
+                    case 'day':
+                            $query->andWhere('DATE(FROM_UNIXTIME(created_at)) = DATE(NOW())');
+                        break;
+                    case 'week':
+                            $query->andWhere('WEEK(FROM_UNIXTIME(created_at)) = WEEK(NOW())');
+                        break;
+                    case 'month':
+                            $query->andWhere('MONTH(FROM_UNIXTIME(created_at)) = MONTH(NOW())');
+                        break;
+                }
+            }
+
+            if (!empty($filter['sQuery'])) {
+                $query->andWhere(['like', 'title', $filter['sQuery']]);
+            }
+        }
+
+        return $query;
+    }
+
 }

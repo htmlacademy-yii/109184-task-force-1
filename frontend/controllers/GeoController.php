@@ -14,12 +14,13 @@ use yii\caching\TagDependency;
 
 class GeoController extends Controller 
 {
+    protected $apikey = "e666f398-c983-4bde-8f14-e3fec900592a";
+
     /**
       * Обработчик поиска и получения гео данных от Яндекса
     */
 	public function actionIndex()
     {
-    	$apikey = "e666f398-c983-4bde-8f14-e3fec900592a";
         $geocode = Yii::$app->request->get()['term'];
 
         try {
@@ -39,7 +40,7 @@ class GeoController extends Controller
             $request = new Request('GET', 'https://geocode-maps.yandex.ru/1.x/');
 
             $response = $client->send($request, [
-	            'query' => [ 'apikey' => $apikey, 'geocode' => $geocodeMod, 'format' => 'json']
+	            'query' => [ 'apikey' => $this->apikey, 'geocode' => $geocodeMod, 'format' => 'json']
 	        ]);
 
             if ($response->getStatusCode() !== 200) {

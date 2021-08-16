@@ -4,6 +4,7 @@ use yii\web\View;
 use yii\bootstrap\ActiveForm;
 use frontend\models\City;
 use yii\jui\DatePicker;
+use yii\helpers\Url;
 ?>
 
 <div class="main-container page-container">
@@ -14,10 +15,8 @@ use yii\jui\DatePicker;
         <h3 class="div-line">Настройки аккаунта</h3>
         <div class="account__redaction-section-wrapper">
           <div class="account__redaction-avatar">
-            <img id="avatar" src="<?= ($model->avatar) ? $model->avatar : './img/no-photo.png' ?>" width="150" height="150">
+            <img id="avatar" src="<?= Url::to([($model->avatar) ? $model->avatar : './img/no-photo.png']);?>" width="150" height="150">
             <?= $form->field($model, 'avatarUpload')->fileInput(['id' => 'upload-avatar'])->label('Сменить аватар', ['class' => 'link-regular']); ?>
-          <!--   <input type="file" name="avatar" id="upload-avatar">
-            <label for="upload-avatar" class="link-regular">Сменить аватар</label> -->
           </div>
           <div class="account__redaction">
             <div class="account__input account__input--name">
@@ -80,7 +79,7 @@ use yii\jui\DatePicker;
                 <?php foreach ($model->gallery as $img) { ?>
                   <div class="img-wrap">
                     <button type="button" class="clear" data-id="<?= $img->id?>"></button>
-                    <img data-fancybox src="<?= $img->link?>" alt="" width="100">
+                    <img data-fancybox src="<?=  Url::to([$img->link])?>" alt="" width="100">
                   </div>
                 <?php } ?>
               <?php } ?>
@@ -164,10 +163,6 @@ use yii\jui\DatePicker;
           var wrap = document.createElement("div");
           wrap.className = "img-wrap wrap-id-" + imgIndex; 
           document.querySelector(".portfolio-list").appendChild(wrap).appendChild(img)
-
-          // document.querySelector(".portfolio-list").appendChild('<div class="img-wrap">'
-          //   +'<button type="button" class="clear" data-id="0"></button>'
-          //   + img + '</div>');
 
           var button = document.createElement("button");
           button.className = "clear";
