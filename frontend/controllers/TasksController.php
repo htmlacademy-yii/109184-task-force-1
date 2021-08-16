@@ -86,9 +86,7 @@ class TasksController extends SecuredController
         $model = new Task();
         
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
-            $fields = \Yii::$app->request->post();
-
-            if ($model->createTask($fields)) {
+            if ($model->createTask(\Yii::$app->request->post())) {
                 return $this->goHome();
             }
         }
@@ -104,7 +102,11 @@ class TasksController extends SecuredController
     */
     public function actionRefuse($id = false) 
     {
-        $taskID = '';
+        $taskID = null;
+
+        if ($fields = \Yii::$app->request->post()) {
+            if (isset($fields['task_id'])) $taskID = $fields['task_id'];
+        }
 
         if (\Yii::$app->user->identity->role_id == 4) {
             if ($id) {
@@ -114,15 +116,11 @@ class TasksController extends SecuredController
                 $task = Task::findOne($respond->task_id);
             }
         } else if (\Yii::$app->user->identity->role_id == 3) {
-            if (\Yii::$app->request->post()) {
-                $fields = \Yii::$app->request->post();
-                $taskID = $fields['task_id'];
-
+            if ($taskID) {
                 $task = Task::findOne($taskID);
                 $task->updateStatus(6); // Провалено
 
                 (new Notification())->setNotification(['type' => 3, 'task_id' => $taskID, 'user_id' => \Yii::$app->user->identity->id ]);
-
             }
         }
 
@@ -155,11 +153,9 @@ class TasksController extends SecuredController
         $respond = new Respond();
 
         if ($respond->validate() && \Yii::$app->request->post()) {
-            $fields = \Yii::$app->request->post();
-
             $respond = new Respond();
-            if ($respond->createRespond($fields)) {
-                (new Notification())->setNotification(['type' => 1, 'task_id' => $fields['task_id'], 'user_id' => \Yii::$app->user->identity->id ]);
+            if ($respond->createRespond(\Yii::$app->request->post())) {
+                (new Notification())->setNotification(['type' => 1, 'task_id' => $respond->task_id, 'user_id' => \Yii::$app->user->identity->id ]);
             }
         }
         
@@ -171,17 +167,19 @@ class TasksController extends SecuredController
     */
     public function actionRequest() 
     {
-        if (\Yii::$app->request->post()) {
-            $fields = \Yii::$app->request->post();
-            $task_id = $fields['task_id'];
+        if ($fields = \Yii::$app->request->post()) {
+            if (isset($fields['task_id'])) {
 
-            $task = Task::findOne($task_id);
-            $task->updateStatus(5); // Завершено
+                $task_id = $fields['task_id'];
 
-            $review = new Review();
-            $review->createReview($fields);
+                $task = Task::findOne($task_id);
+                $task->updateStatus(5); // Завершено
 
-            (new Notification())->setNotification(['type' => 5, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
+                $review = new Review();
+                $review->createReview($fields);
+
+                (new Notification())->setNotification(['type' => 5, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
+            }
         }
 
         return $this->redirect(['task/view/' . $task->id]);

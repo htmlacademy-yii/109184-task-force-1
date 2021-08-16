@@ -315,14 +315,14 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     {
         if (!empty($attributes)) {
             $user = new User([
-                'login' => $attributes['nickname'],
-                'name' => $attributes['first_name'] . " " . $attributes['last_name'],
+                'login' => $attributes['nickname'] ?? "",
+                'name' => ($attributes['first_name'] || $attributes['first_name']) ? $attributes['first_name'] . " " . $attributes['last_name'] : "",
                 'email' => $attributes['email'] ?? null,
-                'password' => $password,
-                'birthdate' => strtotime($attributes['bdate']),
-                'avatar' => $attributes['photo'],
+                'password' => $password ?? "",
+                'birthdate' => ($attributes['bdate']) ? strtotime($attributes['bdate']) : 0,
+                'avatar' => $attributes['photo'] ?? "",
                 'created_at' => time(),
-                'source_id' => $attributes['id']
+                'source_id' => $attributes['id'] ?? 0
             ]);
             $user->generateAuthKey();
             $user->generatePasswordResetToken();
@@ -341,13 +341,13 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function updateAccount($fields)
     {
         if (!empty($fields)) {
-            $this->email = $fields['User']['email'];
-            $this->birthdate = strtotime($fields['User']['birthdate']);
-            $this->city_id = $fields['User']['city_id'];
-            $this->about = $fields['User']['about'];
-            $this->phone = $fields['User']['phone'];
-            $this->telegram = $fields['User']['telegram'];
-            $this->skype = $fields['User']['skype'];
+            $this->email = $fields['User']['email'] ?? "";
+            $this->birthdate = ($fields['User']['birthdate']) ? strtotime($fields['User']['birthdate']) : 0;
+            $this->city_id = $fields['User']['city_id'] ?? 0;
+            $this->about = $fields['User']['about'] ?? "";
+            $this->phone = $fields['User']['phone'] ?? "";
+            $this->telegram = $fields['User']['telegram'] ?? "";
+            $this->skype = $fields['User']['skype'] ?? "";
             $this->show_contacts = $fields['show_contacts'] ?? 0;
             $this->show_profile = $fields['show_profile'] ?? 0;
             $this->new_message = $fields['new_message'] ?? 0;

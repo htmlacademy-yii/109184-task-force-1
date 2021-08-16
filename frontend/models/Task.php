@@ -339,11 +339,11 @@ class Task extends \yii\db\ActiveRecord
     public function createTask($fields) 
     {
         if (!empty($fields)) {
-            $this->title = $fields['Task']['title'];
-            $this->description = $fields['Task']['description'];
-            $this->category_id = $fields['Task']['category_id'];
-            $this->price = $fields['Task']['price'];
-            $this->expire_date = strtotime($fields['Task']['expire_date']);
+            $this->title = $fields['Task']['title'] ?? "";
+            $this->description = $fields['Task']['description'] ?? "";
+            $this->category_id = $fields['Task']['category_id'] ?? 0;
+            $this->price = $fields['Task']['price'] ?? 0;
+            $this->expire_date = ($fields['Task']['expire_date']) ? strtotime($fields['Task']['expire_date']) : 0;
             
             $this->user_created = \Yii::$app->user->identity->id;
             $this->created_at = strtotime('now');
@@ -352,10 +352,10 @@ class Task extends \yii\db\ActiveRecord
 
             if (!$city) {
                 $city = new City();
-                $city->name = $fields['city'];
-                $position = explode(" ", $fields['position']);
-                $city->lat = $position[1];
-                $city->long = $position[0];
+                $city->name = $fields['city'] ?? "";
+                $position = ($fields['position']) ? explode(" ", $fields['position']) : [];
+                $city->lat = $position[1] ?? 0;
+                $city->long = $position[0] ?? 0;
                 $city->save();
             }
 
@@ -363,11 +363,11 @@ class Task extends \yii\db\ActiveRecord
            
             if (!$address) {
                 $address = new Address();
-                $address->name = $fields['Task']['addressText'];
-                $position = explode(" ", $fields['position']);
+                $address->name = $fields['Task']['addressText'] ?? "";
+                $position = ($fields['position']) ? explode(" ", $fields['position']) : [];
                 $address->city_id = $city->id;
-                $address->lat = $position[1];
-                $address->long = $position[0];
+                $address->lat = $position[1] ?? 0;
+                $address->long = $position[0] ?? 0;
                 $address->save();
             }
 
