@@ -29,56 +29,23 @@ class TasksController extends SecuredController
     */
     public function actionIndex()
     {
-    	$query = Task::find();
-
-    	$tasks = $query
-    	->where(['tasks.status' => '1'])
-    	->with('category')
-    	->with('city');
-
 		$model = new TaskFilterForm();
 		$model->getCategory();
 		$model->getWorkType();
 		$model->getPeriod();
 
+    	$query = Task::find()->where(['tasks.status' => '1'])
+                             ->with('category')
+                             ->with('city');
+
         $filter = Yii::$app->request->get() ? Yii::$app->request->get() : Yii::$app->request->post();
-        
+
         if (\Yii::$app->user->identity->city_id != 0) {
             $query->where(['tasks.city_id' => \Yii::$app->user->identity->city_id]);
         }
-        
-        if ($filter) {
 
-            if (isset($filter['city'])) {
-                $query->where(['tasks.city_id' => $filter['city']]);
-            }
+        $query = (new Task)->filterTasks($filter, $query);
 
-            if (isset($filter['category'])) {
-                $query->andWhere(['in', 'category_id', $filter['category']]);
-            } 
-
-        	if (isset($filter['work_type'])) {
-				$query->andWhere(['in', 'work_type_id', $filter['work_type']]);
-			}
-
-			if (!empty($filter['period'])) {
-				switch ($filter['period']) {
-					case 'day':
-							$query->andWhere('DATE(FROM_UNIXTIME(created_at)) = DATE(NOW())');
-						break;
-					case 'week':
-							$query->andWhere('WEEK(FROM_UNIXTIME(created_at)) = WEEK(NOW())');
-						break;
-					case 'month':
-							$query->andWhere('MONTH(FROM_UNIXTIME(created_at)) = MONTH(NOW())');
-						break;
-				}
-			}
-
-			if (!empty($filter['sQuery'])) {
-				$query->andWhere(['like', 'title', $filter['sQuery']]);
-			}
-        }
         $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 5]);
 
         $tasks = $query->offset($pages->offset)->limit($pages->limit)->all();
@@ -104,7 +71,7 @@ class TasksController extends SecuredController
             throw new NotFoundHttpException("Задание с ID $id не найден");
         }
 
-        return $this->render('task', compact('tasks', 'responds', 'responseForm', 'requestForm', 'refuseForm'));
+        return $this->render('task', compact('task', 'responds', 'responseForm', 'requestForm', 'refuseForm'));
     }
 
     /**
@@ -119,9 +86,7 @@ class TasksController extends SecuredController
         $model = new Task();
         
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
-            $fields = \Yii::$app->request->post();
-
-            if ($model->createTask($fields)) {
+            if ($model->createTask(\Yii::$app->request->post())) {
                 return $this->goHome();
             }
         }
@@ -137,7 +102,11 @@ class TasksController extends SecuredController
     */
     public function actionRefuse($id = false) 
     {
-        $taskID = '';
+        $taskID = null;
+
+        if ($fields = \Yii::$app->request->post()) {
+            if (isset($fields['task_id'])) $taskID = $fields['task_id'];
+        }
 
         if (\Yii::$app->user->identity->role_id == 4) {
             if ($id) {
@@ -147,15 +116,11 @@ class TasksController extends SecuredController
                 $task = Task::findOne($respond->task_id);
             }
         } else if (\Yii::$app->user->identity->role_id == 3) {
-            if (\Yii::$app->request->post()) {
-                $fields = \Yii::$app->request->post();
-                $taskID = $fields['task_id'];
-
+            if ($taskID) {
                 $task = Task::findOne($taskID);
                 $task->updateStatus(6); // Провалено
 
                 (new Notification())->setNotification(['type' => 3, 'task_id' => $taskID, 'user_id' => \Yii::$app->user->identity->id ]);
-
             }
         }
 
@@ -188,11 +153,9 @@ class TasksController extends SecuredController
         $respond = new Respond();
 
         if ($respond->validate() && \Yii::$app->request->post()) {
-            $fields = \Yii::$app->request->post();
-
             $respond = new Respond();
-            if ($respond->createRespond($fields)) {
-                (new Notification())->setNotification(['type' => 1, 'task_id' => $fields['task_id'], 'user_id' => \Yii::$app->user->identity->id ]);
+            if ($respond->createRespond(\Yii::$app->request->post())) {
+                (new Notification())->setNotification(['type' => 1, 'task_id' => $respond->task_id, 'user_id' => \Yii::$app->user->identity->id ]);
             }
         }
         
@@ -204,17 +167,19 @@ class TasksController extends SecuredController
     */
     public function actionRequest() 
     {
-        if (\Yii::$app->request->post()) {
-            $fields = \Yii::$app->request->post();
-            $task_id = $fields['task_id'];
+        if ($fields = \Yii::$app->request->post()) {
+            if (isset($fields['task_id'])) {
 
-            $task = Task::findOne($task_id);
-            $task->updateStatus(5); // Завершено
+                $task_id = $fields['task_id'];
 
-            $review = new Review();
-            $review->createReview($fields);
+                $task = Task::findOne($task_id);
+                $task->updateStatus(5); // Завершено
 
-            (new Notification())->setNotification(['type' => 5, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
+                $review = new Review();
+                $review->createReview($fields);
+
+                (new Notification())->setNotification(['type' => 5, 'task_id' => $task->id, 'user_id' => \Yii::$app->user->identity->id ]);
+            }
         }
 
         return $this->redirect(['task/view/' . $task->id]);

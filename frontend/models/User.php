@@ -315,14 +315,14 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     {
         if (!empty($attributes)) {
             $user = new User([
-                'login' => $attributes['nickname'],
-                'name' => $attributes['first_name'] . " " . $attributes['last_name'],
+                'login' => $attributes['nickname'] ?? "",
+                'name' => ($attributes['first_name'] || $attributes['first_name']) ? $attributes['first_name'] . " " . $attributes['last_name'] : "",
                 'email' => $attributes['email'] ?? null,
-                'password' => $password,
-                'birthdate' => strtotime($attributes['bdate']),
-                'avatar' => $attributes['photo'],
+                'password' => $password ?? "",
+                'birthdate' => ($attributes['bdate']) ? strtotime($attributes['bdate']) : 0,
+                'avatar' => $attributes['photo'] ?? "",
                 'created_at' => time(),
-                'source_id' => $attributes['id']
+                'source_id' => $attributes['id'] ?? 0
             ]);
             $user->generateAuthKey();
             $user->generatePasswordResetToken();
@@ -341,13 +341,13 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function updateAccount($fields)
     {
         if (!empty($fields)) {
-            $this->email = $fields['User']['email'];
-            $this->birthdate = strtotime($fields['User']['birthdate']);
-            $this->city_id = $fields['User']['city_id'];
-            $this->about = $fields['User']['about'];
-            $this->phone = $fields['User']['phone'];
-            $this->telegram = $fields['User']['telegram'];
-            $this->skype = $fields['User']['skype'];
+            $this->email = $fields['User']['email'] ?? "";
+            $this->birthdate = ($fields['User']['birthdate']) ? strtotime($fields['User']['birthdate']) : 0;
+            $this->city_id = $fields['User']['city_id'] ?? 0;
+            $this->about = $fields['User']['about'] ?? "";
+            $this->phone = $fields['User']['phone'] ?? "";
+            $this->telegram = $fields['User']['telegram'] ?? "";
+            $this->skype = $fields['User']['skype'] ?? "";
             $this->show_contacts = $fields['show_contacts'] ?? 0;
             $this->show_profile = $fields['show_profile'] ?? 0;
             $this->new_message = $fields['new_message'] ?? 0;
@@ -397,5 +397,46 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
                 $file->saveAs('uploads/' . $file->baseName . '.' . $file->extension);
             }
         }
+    }
+
+    /**
+      * Обработчик фильтрации заданий со страницы "Исполнители"
+      * @param array $filter
+      * @param object $query
+    */
+    public function filterUsers($filter, $query)
+    {
+        if ($filter) {
+
+            if (isset($filter['category'])) {
+                $query->leftJoin('category_users', 'category_users.user_id = users.id')->andWhere(['in', 'category_users.category_id', $filter['category']]);
+            }
+
+            if (isset($filter['free'])) {
+                $query->andWhere(['activity_status' => 1]);
+            }
+
+            if (isset($filter['online'])) {
+                // сделать когда будет авторизация
+            }
+
+            if (isset($filter['has_reviews'])) {
+                if (!empty($reviewUsers = Review::find()->select('user_reciever')->asArray()->column())) {
+                    $query->andWhere(['in', 'id', $reviewUsers]);
+                }
+            }
+            
+            if (isset($filter['favourite'])) {
+                if (!empty($favouriteUsers = Favourite::find()->select('user_favourite')->asArray()->column())) {
+                    $query->andWhere(['in', 'id', $favouriteUsers]);
+                }
+            }
+
+            if (!empty($filter['sQuery'])) {
+                $query->andWhere(['like', 'name', $filter['sQuery']]);
+            }
+        }
+
+        return $query;
     }
 }

@@ -86,10 +86,10 @@ class Respond extends \yii\db\ActiveRecord
     public function createRespond($fields) 
     {
         if (!empty($fields)) {
-            $this->task_id = $fields['task_id'];
+            $this->task_id = $fields['task_id'] ?? 0;
             $this->user_id = \Yii::$app->user->identity->id;
-            $this->price = $fields['ResponseForm']['price'];
-            $this->comment = $fields['ResponseForm']['comment'];
+            $this->price = $fields['ResponseForm']['price'] ?? 0;
+            $this->comment = $fields['ResponseForm']['comment'] ?? "";
             $this->created_at = strtotime('now');
             $this->is_accepted = null;
 

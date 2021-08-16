@@ -339,11 +339,11 @@ class Task extends \yii\db\ActiveRecord
     public function createTask($fields) 
     {
         if (!empty($fields)) {
-            $this->title = $fields['Task']['title'];
-            $this->description = $fields['Task']['description'];
-            $this->category_id = $fields['Task']['category_id'];
-            $this->price = $fields['Task']['price'];
-            $this->expire_date = strtotime($fields['Task']['expire_date']);
+            $this->title = $fields['Task']['title'] ?? "";
+            $this->description = $fields['Task']['description'] ?? "";
+            $this->category_id = $fields['Task']['category_id'] ?? 0;
+            $this->price = $fields['Task']['price'] ?? 0;
+            $this->expire_date = ($fields['Task']['expire_date']) ? strtotime($fields['Task']['expire_date']) : 0;
             
             $this->user_created = \Yii::$app->user->identity->id;
             $this->created_at = strtotime('now');
@@ -352,10 +352,10 @@ class Task extends \yii\db\ActiveRecord
 
             if (!$city) {
                 $city = new City();
-                $city->name = $fields['city'];
-                $position = explode(" ", $fields['position']);
-                $city->lat = $position[1];
-                $city->long = $position[0];
+                $city->name = $fields['city'] ?? "";
+                $position = ($fields['position']) ? explode(" ", $fields['position']) : [];
+                $city->lat = $position[1] ?? 0;
+                $city->long = $position[0] ?? 0;
                 $city->save();
             }
 
@@ -363,11 +363,11 @@ class Task extends \yii\db\ActiveRecord
            
             if (!$address) {
                 $address = new Address();
-                $address->name = $fields['Task']['addressText'];
-                $position = explode(" ", $fields['position']);
+                $address->name = $fields['Task']['addressText'] ?? "";
+                $position = ($fields['position']) ? explode(" ", $fields['position']) : [];
                 $address->city_id = $city->id;
-                $address->lat = $position[1];
-                $address->long = $position[0];
+                $address->lat = $position[1] ?? 0;
+                $address->long = $position[0] ?? 0;
                 $address->save();
             }
 
@@ -411,6 +411,95 @@ class Task extends \yii\db\ActiveRecord
     {
         $this->status = $status; // В работе
         $this->save();
+    }
+
+    /**
+      * Обработчик фильтрации заданий со страницы "Мои задания"
+      * @param array $filter
+    */
+    public function filterMyTasks($filter)
+    {
+        $query = Task::find()->join('LEFT JOIN', 'responds', 'tasks.id = responds.task_id');
+
+        if ($filter) {
+            switch($filter['status']) {
+                case 'finished':
+                   $query->andWhere(['tasks.status' => '5']);
+                   $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                   $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                   $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'new':   
+                    $query->andWhere(['tasks.status' => '1']);
+                    $query->andWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                break;
+                case 'current': 
+                    $query->andWhere(['tasks.status' => '2']);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'canceled':
+                    $query->andWhere(['tasks.status' => '3'])->orWhere(['tasks.status' => '6']);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->orWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+                case 'expired':
+                    $query->andWhere(['<', 'tasks.expire_date', strtotime('now')]);
+                    $query->andWhere(['responds.user_id' => \Yii::$app->user->identity->id]);
+                    $query->andWhere(['responds.is_accepted' => 1]);
+                break;
+            }
+        } else {
+            $query->andWhere(['tasks.status' => '1']);
+            $query->andWhere(['tasks.user_created' => \Yii::$app->user->identity->id]);
+        }
+        
+        return $query;
+    }
+
+    /**
+      * Обработчик фильтрации заданий со страницы "Задания"
+      * @param array $filter
+      * @param object $query
+    */
+    public function filterTasks($filter, $query)
+    {
+        if ($filter) {
+
+            if (isset($filter['city'])) {
+                $query->where(['tasks.city_id' => $filter['city']]);
+            }
+
+            if (isset($filter['category'])) {
+                $query->andWhere(['in', 'category_id', $filter['category']]);
+            } 
+
+            if (isset($filter['work_type'])) {
+                $query->andWhere(['in', 'work_type_id', $filter['work_type']]);
+            }
+
+            if (!empty($filter['period'])) {
+                switch ($filter['period']) {
+                    case 'day':
+                            $query->andWhere('DATE(FROM_UNIXTIME(created_at)) = DATE(NOW())');
+                        break;
+                    case 'week':
+                            $query->andWhere('WEEK(FROM_UNIXTIME(created_at)) = WEEK(NOW())');
+                        break;
+                    case 'month':
+                            $query->andWhere('MONTH(FROM_UNIXTIME(created_at)) = MONTH(NOW())');
+                        break;
+                }
+            }
+
+            if (!empty($filter['sQuery'])) {
+                $query->andWhere(['like', 'title', $filter['sQuery']]);
+            }
+        }
+
+        return $query;
     }
 
 }

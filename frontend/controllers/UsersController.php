@@ -21,50 +21,20 @@ class UsersController extends SecuredController
     */
     public function actionIndex()
     {
-    	$query = User::find();
-    	$users = $query
-    	->where(['role_id' => '3'])
-    	->with('city')->with('review')->with('respond');
-
     	$taskForm = new UserFilterForm();
 		$taskForm->getCategory();
 		$taskForm->getWorkType();
+
+    	$query = User::find()->where(['role_id' => '3'])
+    						 ->with('city')->with('review')->with('respond');
 		
         $filter = Yii::$app->request->get() ? Yii::$app->request->get() : Yii::$app->request->post();
-    	if ($filter) {
-
-        	if (isset($filter['category'])) {
-				$query->leftJoin('category_users', 'category_users.user_id = users.id')->andWhere(['in', 'category_users.category_id', $filter['category']]);
-        	}
-
-        	if (isset($filter['free'])) {
-				$query->andWhere(['activity_status' => 1]);
-			}
-
-        	if (isset($filter['online'])) {
-				// сделать когда будет авторизация
-			}
-
-        	if (isset($filter['has_reviews'])) {
-        		if (!empty($reviewUsers = Review::find()->select('user_reciever')->asArray()->column())) {
-					$query->andWhere(['in', 'id', $reviewUsers]);
-        		}
-			}
-			
-        	if (isset($filter['favourite'])) {
-				if (!empty($favouriteUsers = Favourite::find()->select('user_favourite')->asArray()->column())) {
-					$query->andWhere(['in', 'id', $favouriteUsers]);
-				}
-			}
-
-			if (!empty($filter['sQuery'])) {
-				$query->andWhere(['like', 'name', $filter['sQuery']]);
-			}
-        }
+    	
+        $query = (new User)->filterUsers($filter, $query);
 
         $pages = new Pagination(['totalCount' => $query->count()]);
-        $users = $query->offset($pages->offset)
-        ->limit($pages->limit)->all();
+
+        $users = $query->offset($pages->offset)->limit($pages->limit)->all();
 
         return $this->render('users', ['users' => $users, 'model' => $taskForm, 'filter' => $filter, 'pages' => $pages]);
     }

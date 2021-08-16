@@ -4,7 +4,7 @@ use yii\helpers\Url;
 
 <div class="content-view__feedback-card">
   <div class="feedback-card__top">
-    <a href="<?= Url::to(['users/view', 'id' => $respond->user->id]);?>"><img src="<?=$respond->user->avatar || $respond->user->avatar != "" ? $respond->user->avatar : '/img/no-photo.png'?>" width="55" height="55"></a>
+    <a href="<?= Url::to(['users/view', 'id' => $respond->user->id]);?>"><img src="<?= Url::to([$respond->user->avatar || $respond->user->avatar != "" ? $respond->user->avatar : '/img/no-photo.png'])?>" width="55" height="55"></a>
     <div class="feedback-card__top--name">
       <p><a href="<?= Url::to(['users/view', 'id' => $respond->user->id]);?>" class="link-regular"><?=$respond->user->name?></a></p>
       <?php if ($respond->user->rating) { ?>

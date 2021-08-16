@@ -5,7 +5,7 @@ use yii\helpers\Url;
 <div class="content-view__feedback-card user__search-wrapper">
   <div class="feedback-card__top">
     <div class="user__search-icon">
-      <a href="<?= Url::to(['users/view', 'id' => $user->id]);?>"><img src="<?= $user->avatar || $user->avatar != "" ? $user->avatar : './img/no-photo.png'?>" width="65" height="65"></a>
+      <a href="<?= Url::to(['users/view', 'id' => $user->id]);?>"><img src="<?= Url::to([$user->avatar || $user->avatar != "" ? $user->avatar : './img/no-photo.png'])?>" width="65" height="65"></a>
       <span><?= count($user->respond) ?? 0 ?> заданий</span>
       <span><?= count($user->review) ?? 0 ?> отзывов</span>
     </div>

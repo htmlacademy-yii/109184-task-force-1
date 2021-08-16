@@ -23,13 +23,6 @@ AppAsset::register($this);
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
-    />
-    <link rel="stylesheet" href="/css/normalize.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=e666f398-c983-4bde-8f14-e3fec900592a&lang=ru_RU" type="text/javascript"></script>
 </head>
 <body class="<?= (Yii::$app->user->isGuest) ? 'landing' : '' ?>">
 <?php $this->beginBody() ?>
@@ -98,9 +91,6 @@ AppAsset::register($this);
     </footer>
 </div>
 <div class="overlay"></div>
-<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
-<script src="/js/main.js"></script>
-<script src="/js/lightbulb.js"></script>
 <?php $this->endBody() ?>
 </body>
 </html>
